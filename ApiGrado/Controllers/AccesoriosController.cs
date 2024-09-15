@@ -140,7 +140,7 @@ namespace ApiGrado.Controllers
 
             if (!_postRepo.BorrarAccesorio(accesorio))
             {
-                ModelState.AddModelError("", $"Algo salió mal borrando el registro{accesorio.Descripcion}");
+                ModelState.AddModelError("", $"Error, Algo salió mal borrando el registro{accesorio.Descripcion}");
                 return StatusCode(500, ModelState);
             }
             return NoContent();
