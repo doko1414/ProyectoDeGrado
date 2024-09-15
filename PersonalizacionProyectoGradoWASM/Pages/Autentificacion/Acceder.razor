@@ -1,0 +1,58 @@
+﻿@page "/Acceder"
+<section id="hero" class="d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-lg-6 order-1 order-lg-2 hero-img">
+                <div class="wrapper">
+                    <div class="logo">
+                        <img src="assets/img/logo.png" alt="" />
+                    </div>
+                    <div class="text-center mt-4 name">
+                        <h2>Ingresa tu usuario y contraseña</h2>
+                    </div>
+                    @if (MostrarErroresAutenticacion)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @Errores
+                        </div>
+                    }
+                    <EditForm Model="usuarioAutenticacion" OnValidSubmit="AccesoUsuario" class="p-3 mt-3">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-field d-flex align-items-center">
+                            <span class="far fa-user"></span>
+                            <InputText id="userName" class="form-control" @bind-Value="usuarioAutenticacion.NombreUsuario" placeholder="Nombre de Usuario" />
+                            <ValidationMessage For="(() => usuarioAutenticacion.NombreUsuario)" />
+                        </div>
+                        <div class="form-field d-flex align-items-center">
+                            <span class="fas fa-key"></span>
+                            <InputText type="password" id="pwd" class="form-control" @bind-Value="usuarioAutenticacion.Password" placeholder="Contraseña" />
+                            <ValidationMessage For="(() => usuarioAutenticacion.Password)" />
+                        </div>
+                        @if (EstaProcesando)
+                        {
+                            <button type="submit" class="btn mt-3" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Por favor espere...
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn mt-3">Iniciar Sesión</button>
+                        }
+                    </EditForm>
+                    <div class="text-center fs-6">
+                        <a href="registro">Registrarse</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 pt-2 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center">
+                <img src="assets/img/login-img.png" class="img-fluid" alt="">
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+
+}

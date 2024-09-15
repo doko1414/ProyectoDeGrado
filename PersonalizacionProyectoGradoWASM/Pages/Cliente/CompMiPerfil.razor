@@ -1,0 +1,116 @@
+﻿@page "/miPerfil"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using PersonalizacionProyectoGradoWASM.Helpers
+@using PersonalizacionProyectoGradoWASM.Servicios
+@using PersonalizacionProyectoGradoWASM.Modelos
+@using System.Security.Claims
+@using System.ComponentModel.DataAnnotations
+@using PersonalizacionProyectoGradoWASM.Servicios.IServicios
+@inject IUsuariosServicio UsuariosServicio
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize(Roles = "1")]
+
+
+<section id="Perfil" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3><i class="fas fa-user-circle"></i> Mi Perfil</h3>
+                            <button class="btn btn-light" @onclick="EnableEditing">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if (usuario == null)
+                            {
+                                <p>Cargando...</p>
+                            }
+                            else
+                            {
+                                <EditForm Model="@usuario" OnValidSubmit="ActualizarPerfil">
+                                    <DataAnnotationsValidator />
+                                    <div class="form-group mb-3">
+                                        <label for="nombreUsuario"><i class="fas fa-user"></i> Nombre de Usuario:</label>
+                                        <InputText id="nombreUsuario" class="form-control" @bind-Value="usuario.NombreUsuario" disabled="@(!isEditing)" />
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="nombre"><i class="fas fa-id-card"></i> Nombre:</label>
+                                        <InputText id="nombre" class="form-control" @bind-Value="usuario.Nombre" disabled="@(!isEditing)" />
+                                        <ValidationMessage For="@(() => usuario.Nombre)" />
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="apellido"><i class="fas fa-id-card"></i> Apellido:</label>
+                                        <InputText id="apellido" class="form-control" @bind-Value="usuario.Apellido" disabled="@(!isEditing)" />
+                                        <ValidationMessage For="@(() => usuario.Apellido)" />
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="email"><i class="fas fa-envelope"></i> Email:</label>
+                                        <InputText id="email" class="form-control" @bind-Value="usuario.Email" disabled="@(!isEditing)" />
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="numeroCelular"><i class="fas fa-phone"></i> Número de Celular:</label>
+                                        <InputNumber id="numeroCelular" class="form-control" @bind-Value="usuario.NumeroCelular" disabled="@(!isEditing)" />
+                                        <ValidationMessage For="@(() => usuario.NumeroCelular)" />
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección:</label>
+                                        <InputText id="direccion" class="form-control" @bind-Value="usuario.Direccion" disabled="@(!isEditing)" />
+                                        <ValidationMessage For="@(() => usuario.Direccion)" />
+                                    </div>
+                                    @if (isEditing)
+                                    {
+                                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Actualizar Perfil</button>
+                                    }
+                                </EditForm>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private UsuarioGestion usuario;
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(userId) && int.TryParse(userId, out int id))
+            {
+                usuario = await UsuariosServicio.GetUsuario(id);
+            }
+        }
+    }
+
+    private void EnableEditing()
+    {
+        isEditing = true;
+    }
+
+    private async Task ActualizarPerfil()
+    {
+        try
+        {
+            await UsuariosServicio.ActualizarUsuario(usuario.Id, usuario);
+            await JSRuntime.ToastrSuccess("Perfil actualizado exitosamente");
+            isEditing = false; // Deshabilitar edición después de actualizar
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.ToastrError($"Error al actualizar el perfil: {ex.Message}");
+        }
+    }
+}

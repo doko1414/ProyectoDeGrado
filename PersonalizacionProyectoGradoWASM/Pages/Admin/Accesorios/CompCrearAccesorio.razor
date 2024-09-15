@@ -1,0 +1,179 @@
+﻿@page "/crear-accesorio"
+@using Microsoft.AspNetCore.Authorization
+@using PersonalizacionProyectoGradoWASM.Helpers
+@using PersonalizacionProyectoGradoWASM.Modelos
+@using PersonalizacionProyectoGradoWASM.Servicios.IServicios
+@using System.Net.Http.Headers
+@inject IAccesoriosServicio accesoriosServicio
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "0")]
+
+<section id="crearAccesorios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h1 class="text-center">Crear Accesorio</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-7">
+                                <h4 class="card-title text-dark">Nuevo Accesorio</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <EditForm Model="CrearAccesorio" OnValidSubmit="@( () => ManejadorOnCrearPost())">
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                            <ValidationSummary></ValidationSummary>
+                            <div class="container">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <label>Nombre:</label>
+                                        </div>
+                                        <div class="-col-6">
+                                            <InputSelect @bind-Value="CrearAccesorio.Nombre" class="form-control">
+                                                <option value="">Seleccione un nombre</option>
+                                                @foreach (var nombre in listaDeNombres)
+                                                {
+                                                    <option value="@nombre">@nombre</option>
+                                                }
+                                            </InputSelect>
+                                            <ValidationMessage For="() => CrearAccesorio.Nombre"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <label>Costo:</label>
+                                        </div>
+                                        <div class="-col-6">
+                                            <InputNumber @bind-Value="CrearAccesorio.Costo" class="form-control" placeholder="Ingresa la descripción"></InputNumber>
+                                            <ValidationMessage For="() => CrearAccesorio.Costo"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <label>Precio:</label>
+                                        </div>
+                                        <div class="-col-6">
+                                            <InputNumber @bind-Value="CrearAccesorio.Precio" class="form-control" placeholder="Ingresa aquí las etiquetas separadas por coma"></InputNumber>
+                                            <ValidationMessage For="() => CrearAccesorio.Precio"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h4>Modelo 3D del Accesorio</h4>
+                                            <InputFile OnChange="@ManejadorOnSubidaArchivo" accept=".glb"></InputFile>
+                                            <br />
+                                            @if (!string.IsNullOrEmpty(Modelo3d))
+                                            {
+                                                <div>
+                                                    <p>Modelo 3D cargado: @Modelo3d</p>
+                                                    <button type="button" class="btn btn-info" @onclick="MostrarVistaPrevia3D">Vista previa 3D</button>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <label>Descripción</label>
+                                        </div>
+                                        <div class="-col-6">
+                                            <InputText @bind-Value="CrearAccesorio.Descripcion" class="form-control" placeholder="Ingresa aquí las etiquetas separadas por coma"></InputText>
+                                            <ValidationMessage For="() => CrearAccesorio.Descripcion"></ValidationMessage>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="form-group">
+                                    <div class="row">
+                                        <div class="col-2">
+                                            <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar Post</button>
+                                        </div>
+                                        <div class="col-6">
+                                            <NavLink href="accesorios" class="btn btn-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Volver atrás</NavLink>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </EditForm>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Modal para mostrar el modelo 3D -->
+<div class="modal fade" id="modelo3DModal" tabindex="-1" role="dialog" aria-labelledby="modelo3DModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modelo3DModalLabel">Vista previa del Modelo 3D</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <canvas id="renderCanvas" style="width: 100%; height: 400px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    private Accesorio CrearAccesorio { get; set; } = new Accesorio();
+    public string Modelo3d { get; set; }
+    public List<string> listaDeNombres { get; set; } = new List<string> { "Bicicleta", "Montura", "Bocina", "Canasta", "Espejos", "Mangos", "Timbre", "Asiento para Niño " };
+
+    private async Task ManejadorOnCrearPost()
+    {
+        CrearAccesorio.RutaImagen = Modelo3d;
+        var crearAccesorio = await accesoriosServicio.CrearAccesorio(CrearAccesorio);
+        await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Accesorio creado correctamente");
+        navigationManager.NavigateTo("accesorios");
+    }
+
+    private async Task ManejadorOnSubidaArchivo(InputFileChangeEventArgs e)
+    {
+        var modeloFile = e.File;
+        if (modeloFile != null)
+        {
+            if (Path.GetExtension(modeloFile.Name).ToLower() != ".glb")
+            {
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Por favor, seleccione un archivo .glb");
+                return;
+            }
+
+            using (var ms = modeloFile.OpenReadStream(modeloFile.Size))
+            {
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(new StreamContent(ms, Convert.ToInt32(modeloFile.Size)), "file", modeloFile.Name);
+                Modelo3d = await accesoriosServicio.SubidaImagen(content);
+            }
+        }
+    }
+    private async Task MostrarVistaPrevia3D()
+    {
+        await JSRuntime.InvokeVoidAsync("mostrarModelo3D", Modelo3d);
+    }
+}

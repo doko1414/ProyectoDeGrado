@@ -1,0 +1,95 @@
+﻿@page "/editar-usuario/{Id:int}"
+@using PersonalizacionProyectoGradoWASM.Modelos
+@using PersonalizacionProyectoGradoWASM.Servicios.IServicios
+@inject IUsuariosServicio usuarioServicio
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+<section id="Accesorios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h3>Editar Usuario</h3>
+
+                @if (usuario == null)
+                {
+                    <p>Cargando...</p>
+                }
+                else
+                {
+                    <EditForm Model="@usuario" OnValidSubmit="GuardarCambios">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label for="nombreUsuario">Nombre de Usuario:</label>
+                            <InputText id="nombreUsuario" @bind-Value="usuario.NombreUsuario" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nombre">Nombre:</label>
+                            <InputText id="nombre" @bind-Value="usuario.Nombre" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="apellido">Apellido:</label>
+                            <InputText id="apellido" @bind-Value="usuario.Apellido" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numeroCelular">Número de Celular:</label>
+                            <InputNumber id="numeroCelular" @bind-Value="usuario.NumeroCelular" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="direccion">Dirección:</label>
+                            <InputText id="direccion" @bind-Value="usuario.Direccion" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <InputText id="email" @bind-Value="usuario.Email" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Contraseña:</label>
+                            <InputText id="email" @bind-Value="usuario.Password" class="form-control" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
+                    </EditForm>
+                }
+
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private UsuarioGestion usuario;
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuario = await usuarioServicio.GetUsuario(Id);
+    }
+
+    private async Task GuardarCambios()
+    {
+        try
+        {
+            await usuarioServicio.ActualizarUsuario(Id, usuario);
+            await JsRuntime.InvokeVoidAsync("alert", "Usuario actualizado correctamente");
+            NavigationManager.NavigateTo("/usuarios");
+        }
+        catch (Exception ex)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"Error al actualizar usuario: {ex.Message}");
+        }
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/usuarios");
+    }
+}

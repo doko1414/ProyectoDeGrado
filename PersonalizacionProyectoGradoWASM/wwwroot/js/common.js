@@ -1,0 +1,348 @@
+﻿    function setActiveLink(clickedLink) {
+        const links = document.querySelectorAll('.navbar .nav-link');
+        links.forEach(link => {
+        link.classList.remove('active-link');
+    link.classList.remove('active');
+    link.classList.add('inactive-link');
+        });
+    clickedLink.classList.remove('inactive-link');
+    clickedLink.classList.add('active-link');
+    }
+
+window.ShowToastr = (type, message) => {
+    if (type === "success") {
+        toastr.success(message, "Operación Correcta", { timeOut: 10000 });
+    }
+    if (type === "error") {
+        toastr.error(message, "Operación Fallida", { timeOut: 10000 });
+    }
+}
+
+window.ShowSwal = (type, message) => {
+    if (type === "success") {
+        Swal.fire(
+            'Success Notification',
+            message,
+            'success'
+        );
+    }
+    if (type === "error") {
+        Swal.fire(
+            'Error Notification',
+            message,
+            'error'
+        );
+    }
+}
+
+function MostrarModalConfirmacionBorrado() {
+    $('#modalConfirmacionBorrado').modal('show');
+}
+
+function OcultarModalConfirmacionBorrado() {
+    $('#modalConfirmacionBorrado').modal('hide');
+}
+
+window.initializeChart = () => {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['07/04/2023', '08/04/2023'],
+            datasets: [{
+                label: 'Número de ventas por día',
+                data: [3, 2],
+                backgroundColor: '#4B0082',
+                borderColor: '#4B0082',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+function mostrarModelo3D(rutaModelo3D) {
+    console.log("Ruta del modelo:", rutaModelo3D);
+    $('#modelo3DModal').modal('show');
+    $('#modelo3DModal').on('shown.bs.modal', function () {
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+        var scene;
+        try {
+            scene = createScene();
+        } catch (error) {
+            console.error("Error creating scene:", error);
+            toastr.error("Error al crear la escena 3D");
+            return;
+        }
+
+        function createScene() {
+            var scene = new BABYLON.Scene(engine);
+            var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+
+            BABYLON.SceneLoader.ImportMesh("", "", rutaModelo3D, scene,
+                function (meshes) {
+                    scene.createDefaultCameraOrLight(true, true, true);
+                    scene.createDefaultEnvironment();
+                    if (meshes.length > 0) {
+                        scene.activeCamera.alpha = Math.PI / 2;
+                        scene.activeCamera.beta = Math.PI / 2;
+                    }
+                },
+                null,
+                function (scene, message, exception) {
+                    console.error("Error loading model:", message, exception);
+                    toastr.error("Error al cargar el modelo 3D: " + message);
+                }
+            );
+
+            return scene;
+        }
+
+        if (scene) {
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
+
+            window.addEventListener("resize", function () {
+                engine.resize();
+            });
+        }
+    });
+
+    $('#modelo3DModal').on('hidden.bs.modal', function () {
+        if (typeof engine !== 'undefined' && engine) {
+            engine.dispose();
+        }
+    });
+}
+console.log("Cargando funciones de modelo 3D...");
+let scene, engine, canvas;
+const accesoriosMesh = {};
+let bicicletaMesh;
+
+window.inicializarModeloBicicleta = function (rutaModeloBicicleta) {
+    console.log("Inicializando modelo de bicicleta:", rutaModeloBicicleta);
+    canvas = document.getElementById("renderCanvas");
+    engine = new BABYLON.Engine(canvas, true);
+    scene = createScene();
+
+    BABYLON.SceneLoader.ImportMesh("", "", rutaModeloBicicleta, scene,
+        function (meshes) {
+            if (meshes.length > 0) {
+                bicicletaMesh = meshes[0];
+                bicicletaMesh.position = BABYLON.Vector3.Zero();
+                bicicletaMesh.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
+
+                // Centramos la cámara en el modelo de la bicicleta
+                var camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, bicicletaMesh.position, scene);
+                camera.setTarget(bicicletaMesh.position);
+                camera.attachControl(canvas, true);
+                camera.lowerRadiusLimit = 5;
+                camera.upperRadiusLimit = 20;
+
+                var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+                light.intensity = 0.7;
+
+                var directionalLight = new BABYLON.DirectionalLight("directionalLight", new BABYLON.Vector3(-1, -2, -1), scene);
+                directionalLight.intensity = 0.5;
+
+                // Creamos un entorno simple sin necesidad de cargar archivos externos
+                scene.createDefaultEnvironment({
+                    createSkybox: false,
+                    createGround: false,
+                    cameraContrast: 2.5,
+                    cameraExposure: 1
+                });
+
+                // Ajustamos la posición de la cámara después de cargar el modelo
+                ajustarCamara();
+                scene.debugLayer.show();
+            }
+        },
+        null,
+        function (scene, message, exception) {
+            console.error("Error al cargar el modelo de bicicleta:", message, exception);
+        }
+    );
+
+    engine.runRenderLoop(function () {
+        if (scene && scene.activeCamera) {
+            scene.render();
+        }
+    });
+
+    window.addEventListener("resize", function () {
+        engine.resize();
+    });
+};
+window.addEventListener("keydown", function (ev) {
+    if (ev.keyCode === 73) { // 73 es el código de la tecla 'I'
+        if (scene.debugLayer.isVisible()) {
+            scene.debugLayer.hide();
+        } else {
+            scene.debugLayer.show();
+        }
+    }
+});
+function ajustarCamara() {
+    if (bicicletaMesh) {
+        // Calculamos el bounding box del modelo
+        var boundingInfo = bicicletaMesh.getHierarchyBoundingVectors(true);
+        var center = BABYLON.Vector3.Center(boundingInfo.min, boundingInfo.max);
+
+        // Ajustamos la posición de la cámara
+        if (scene.activeCamera) {
+            scene.activeCamera.setTarget(center);
+
+            // Ajustamos la distancia de la cámara basándonos en el tamaño del modelo
+            var diagonal = BABYLON.Vector3.Distance(boundingInfo.min, boundingInfo.max);
+            scene.activeCamera.radius = diagonal * 1.5; // Ajusta este multiplicador según sea necesario
+        }
+    }
+}
+
+window.actualizarModeloBicicleta = function (accesorios) {
+    console.log("Actualizando modelo de bicicleta con accesorios:", accesorios);
+    if (!scene) {
+        console.error("La escena no está inicializada");
+        return;
+    }
+
+    accesorios.forEach(function (accesorio) {
+        if (accesorio.tipo !== "Bicicleta" && accesorio.rutaImagen) {
+            if (accesoriosMesh[accesorio.tipo]) {
+                accesoriosMesh[accesorio.tipo].dispose();
+            }
+
+            BABYLON.SceneLoader.ImportMesh("", "", accesorio.rutaImagen, scene,
+                function (meshes) {
+                    if (meshes.length > 0) {
+                        const accesorioMesh = meshes[0];
+                        accesoriosMesh[accesorio.tipo] = accesorioMesh;
+
+                        accesorioMesh.scaling = new BABYLON.Vector3(1, 1, 1);
+
+                        switch (accesorio.tipo) {
+                            case "Canasta":
+                                switch (accesorio.descripcion) {
+                                    case "Chill'ka":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -33.5, 0);
+
+                                        break;
+                                    case "Mimbre Chino":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 0, 0);
+
+                                        break;
+                                    case "Mimbre Chileno":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -23, -1);
+
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                            case "Montura":
+                                switch (accesorio.descripcion) {
+                                    case "Camel":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -20, 0);
+                                        break;
+                                    case "Camel con Blanco":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -13.45, 0);
+                                        break;
+                                    case "Marron con crema":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 0.9, 0);
+                                        break;
+                                    case "Negro":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 1, 0.1);
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                            case "Bocina":
+                                switch (accesorio.descripcion) {
+                                    case "Plateado":
+                                        accesorioMesh.position = new BABYLON.Vector3(-13.32, 0, 0);
+                                        break;
+                                    case "Dorado":
+                                        accesorioMesh.position = new BABYLON.Vector3(-22.3, 0, 0);
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                            case "Espejos":
+                                switch (accesorio.descripcion) {
+                                    case "Retrovisor Negro":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 0, 0);
+                                        break;
+                                    case "Blanco":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -6, 0);
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                            case "Mangos":
+                                switch (accesorio.descripcion) {
+                                    case "Negro":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 1, 1);
+                                        break;
+                                    case "Caucho amarillo":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 1, 1.1);
+                                        break;
+                                    case "Caucho Naranja":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -15.8, 0);
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                            case "Timbre":
+                                switch (accesorio.descripcion) {
+                                    case "Metal dorado":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -2.5, 0);
+                                        break;
+                                    case "Metal plateado":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 0, 0);
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                            case "Asiento para Niño ":
+                                switch (accesorio.descripcion) {
+                                    case "Azul":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -30, 0);
+                                        break;
+                                    case "Rojo":
+                                        accesorioMesh.position = new BABYLON.Vector3(0, -11.0, 0);
+                                        break;
+                                }
+                                accesorioMesh.rotation = new BABYLON.Vector3(0, 0, 0);
+                                break;
+                        }
+
+                        accesorioMesh.parent = bicicletaMesh;
+                    }
+
+                    ajustarCamara();
+                },
+                null,
+                function (scene, message, exception) {
+                    console.error("Error al cargar el accesorio:", accesorio.tipo, message, exception);
+                }
+            );
+        }
+    });
+};
+
+function createScene() {
+    const scene = new BABYLON.Scene(engine);
+    scene.clearColor = BABYLON.Color3.FromHexString("#EDECE0");
+    return scene;
+}
+
+console.log("Funciones de modelo 3D cargadas correctamente.");

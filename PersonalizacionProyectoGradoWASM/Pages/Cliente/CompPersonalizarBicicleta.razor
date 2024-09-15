@@ -1,0 +1,238 @@
+﻿@page "/bicicleta-personalizada"
+@using Microsoft.AspNetCore.Components.Authorization
+@using PersonalizacionProyectoGradoWASM.Servicios.IServicios
+@using PersonalizacionProyectoGradoWASM.Modelos
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@inject IJSRuntime JSRuntime
+@inject IAccesoriosServicio AccesoriosServicio
+@inject IPedidosServicio CarritoComprasServicio
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "1")]
+
+<section id="personalizar" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 pt-2 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center">
+                <h2>Personaliza tu Bicicleta</h2>
+                <p>Selecciona los accesorios para tu bicicleta:</p>
+
+                @foreach (var tipoAccesorio in tiposAccesorios)
+                {
+                    <div class="form-group">
+                        <label for="@tipoAccesorio">@tipoAccesorio:</label>
+                        <select class="form-control" id="@tipoAccesorio" @onchange="@(e => CambiarAccesorio(tipoAccesorio, e.Value.ToString()))">
+                            <option value="">Seleccionar @tipoAccesorio</option>
+                            @if (accesoriosPorTipo.ContainsKey(tipoAccesorio))
+                            {
+                                @foreach (var accesorio in accesoriosPorTipo[tipoAccesorio])
+                                {
+                                    <option value="@accesorio.Id">@accesorio.Descripcion - Bs @accesorio.Precio.ToString("F2")</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                }
+
+                <div class="mt-3">
+                    <h4>Precio Total: Bs @precioTotal.ToString("F2")</h4>
+                </div>
+
+                <button class="btn btn-primary mt-3" @onclick="RealizarPedido">Realizar Pedido</button>
+            </div>
+            <div class="col-lg-8 order-1 order-lg-2 hero-img">
+                <div id="canvasContainer" style="width: 100%; height: 500px;">
+                    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private string rutaModelo3D;
+    private List<string> tiposAccesorios = new List<string> { "Montura", "Bocina", "Canasta", "Espejos", "Mangos", "Timbre", "Asiento para Niño " };
+    private Dictionary<string, List<Accesorio>> accesoriosPorTipo = new Dictionary<string, List<Accesorio>>();
+    private Dictionary<string, Accesorio> accesoriosSeleccionados = new Dictionary<string, Accesorio>();
+    private double precioTotal = 0;
+    private Accesorio bicicletaBase;
+    private int userId;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerUsuarioId();
+        await CargarAccesorios();
+        await CargarModeloBicicleta();
+    }
+
+    private async Task ObtenerUsuarioId()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity.IsAuthenticated)
+            {
+                var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedUserId))
+                {
+                    userId = parsedUserId;
+                }
+                else
+                {
+                    Console.WriteLine("No se pudo obtener o parsear el ID del usuario.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("El usuario no está autenticado.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al obtener el ID del usuario: {ex.Message}");
+        }
+    }
+
+    private async Task CargarAccesorios()
+    {
+        try
+        {
+            var todosLosAccesorios = await AccesoriosServicio.GetAccesorios();
+
+            bicicletaBase = todosLosAccesorios.FirstOrDefault(a => a.Nombre == "Bicicleta");
+            if (bicicletaBase != null)
+            {
+                precioTotal += bicicletaBase.Precio;
+            }
+
+            foreach (var tipo in tiposAccesorios)
+            {
+                accesoriosPorTipo[tipo] = todosLosAccesorios.Where(a => a.Nombre == tipo).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error al cargar accesorios: {ex.Message}");
+        }
+    }
+
+    private async Task CargarModeloBicicleta()
+    {
+        try
+        {
+            if (bicicletaBase != null && !string.IsNullOrEmpty(bicicletaBase.RutaImagen))
+            {
+                rutaModelo3D = bicicletaBase.RutaImagen;
+                await JSRuntime.InvokeVoidAsync("inicializarModeloBicicleta", rutaModelo3D);
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró el modelo 3D de la bicicleta.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error al cargar el modelo de la bicicleta: {ex.Message}");
+        }
+    }
+
+    private async Task CambiarAccesorio(string tipo, string accesorioId)
+    {
+        if (string.IsNullOrEmpty(accesorioId))
+        {
+            if (accesoriosSeleccionados.ContainsKey(tipo))
+            {
+                precioTotal -= accesoriosSeleccionados[tipo].Precio;
+                accesoriosSeleccionados.Remove(tipo);
+            }
+        }
+        else
+        {
+            var accesorio = accesoriosPorTipo[tipo].FirstOrDefault(a => a.Id.ToString() == accesorioId);
+            if (accesorio != null)
+            {
+                if (accesoriosSeleccionados.ContainsKey(tipo))
+                {
+                    precioTotal -= accesoriosSeleccionados[tipo].Precio;
+                }
+                accesoriosSeleccionados[tipo] = accesorio;
+                precioTotal += accesorio.Precio;
+            }
+        }
+
+        await ActualizarModeloBicicleta();
+    }
+
+    private async Task ActualizarModeloBicicleta()
+    {
+        var accesoriosParaJS = accesoriosSeleccionados.Select(kvp => new
+        {
+            tipo = kvp.Key,
+            id = kvp.Value.Id,
+            rutaImagen = kvp.Value.RutaImagen,
+            descripcion = kvp.Value.Descripcion
+        }).ToList();
+
+        await JSRuntime.InvokeVoidAsync("actualizarModeloBicicleta", accesoriosParaJS);
+    }
+
+    private async Task RealizarPedido()
+    {
+        try
+        {
+            if (userId == 0)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error: No se pudo obtener el ID del usuario.");
+                return;
+            }
+
+            var pedido = new PedidosComprasDto
+                {
+                    UsuarioId = userId,
+                    PrecioTotal=precioTotal,
+                    FechaCreacion=DateTime.Now,
+                    Estado= EstadoPedido.Pendiente,
+                    Items = new List<PedidosItemsDto>()
+                
+                };
+
+            if (bicicletaBase == null)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error: No se ha seleccionado una bicicleta base.");
+                return;
+            }
+
+            pedido.Items.Add(new PedidosItemsDto
+                {
+                    AccesorioId = bicicletaBase.Id,
+                    Cantidad = 1
+                });
+
+            foreach (var accesorio in accesoriosSeleccionados.Values)
+            {
+                pedido.Items.Add(new PedidosItemsDto
+                    {
+                        AccesorioId = accesorio.Id,
+                        Cantidad = 1
+                    });
+            }
+
+            var result = await CarritoComprasServicio.AgregarPedido(pedido);
+
+            if (result != null)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Bicicleta personalizada agregada al carrito con éxito!");
+                NavigationManager.NavigateTo("/MonitoreoPedidos");
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error al agregar al carrito: {ex.Message}");
+            Console.WriteLine($"Error detallado: {ex}");
+        }
+    }
+}

@@ -1,0 +1,134 @@
+﻿@page "/accesorios"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Logging
+@using PersonalizacionProyectoGradoWASM.Helpers
+@using PersonalizacionProyectoGradoWASM.Servicios
+@using PersonalizacionProyectoGradoWASM.Servicios.IServicios
+@using PersonalizacionProyectoGradoWASM.Modelos
+@inject IAccesoriosServicio accesoriosServicio
+@inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "0")]
+
+<section id="Accesorios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h1 class="text-center">Accesorios</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-7">
+                                <h4 class="card-title text-dark">Lista de Accesorios</h4>
+                            </div>
+                            <div class="col-3 offset-2">
+                                <NavLink href="crear-accesorio" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i>&nbsp; Nuevo Accesorio</NavLink>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Nombre</th>
+                                    <th>Costo</th>
+                                    <th>Precio</th>
+                                    <th>Modelo 3D</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha de Creacion</th>
+                                    <th>Fecha de Actualización</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Accesorios.Count() > 0)
+                                {
+                                    @foreach (var post in Accesorios)
+                                    {
+                                        <tr>
+                                            <td>@post.Id</td>
+                                            <td>@post.Nombre</td>
+                                            <td>@post.Costo</td>
+                                            <td>@post.Precio</td>
+                                            <td>
+                                                <button class="btn btn-info" @onclick="() => MostrarModelo3D(post.RutaImagen)">Ver Modelo 3D</button>
+                                            </td>
+                                            <td>@post.Descripcion</td>
+                                            <td>@post.FechaCreacion</td>
+                                            <td>@post.FechaActualizacion</td>
+                                            <td>
+                                                <NavLink href="@($"editar-accesorio/{@post.Id}")" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Editar</NavLink>
+                                                <button class="btn btn-danger" @onclick="()=>ManejadorOnBorrar(post.Id)"><i class="bi bi-trash-fill"></i>&nbsp; Borrar</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="9">Cargando...</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <ConfirmacionBorrado ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="Click_Confirmacion_Borrado"></ConfirmacionBorrado>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Modal para mostrar el modelo 3D -->
+<div class="modal fade" id="modelo3DModal" tabindex="-1" role="dialog" aria-labelledby="modelo3DModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modelo3DModalLabel">Vista previa del Modelo 3D</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <canvas id="renderCanvas" style="width: 100%; height: 400px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    public IEnumerable<Accesorio> Accesorios { get; set; } = new List<Accesorio>();
+    //Par la parte de borrar
+    private bool estaProcesando { get; set; } = false;
+    private int? BorrarIdAccesorio { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Accesorios = await accesoriosServicio.GetAccesorios();
+    }
+
+    public async Task ManejadorOnBorrar(int accesorioId)
+    {
+        BorrarIdAccesorio = accesorioId;
+        await JsRuntime.InvokeVoidAsync("MostrarModalConfirmacionBorrado");
+    }
+
+    public async Task Click_Confirmacion_Borrado(bool confirmado)
+    {
+        estaProcesando = true;
+        if (confirmado && BorrarIdAccesorio != null)
+        {
+            await accesoriosServicio.EliminarAccesorio(BorrarIdAccesorio.Value);
+            await JsRuntime.ToastrSuccess("Accesorio borrado correctamente");
+            Accesorios = await accesoriosServicio.GetAccesorios();
+        }
+
+        await JsRuntime.InvokeVoidAsync("OcultarModalConfirmacionBorrado");
+        estaProcesando = false;
+    }
+     private async Task MostrarModelo3D(string rutaModelo3D)
+    {
+        await JsRuntime.InvokeVoidAsync("mostrarModelo3D", rutaModelo3D);
+    }
+}

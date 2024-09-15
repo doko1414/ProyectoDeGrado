@@ -1,0 +1,162 @@
+﻿@page "/reporte"
+@attribute [Authorize(Roles = "0")]
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using PersonalizacionProyectoGradoWASM.Servicios
+@using PersonalizacionProyectoGradoWASM.Modelos
+@using PersonalizacionProyectoGradoWASM.Servicios.IServicios
+@using System.Security.Claims
+@inject IPedidosServicio CarritoComprasServicio
+@inject IUsuariosServicio UsuariosServicio
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+<section id="Pedidos" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <h2>Panel de Reportes Administrativos</h2>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Estadísticas Generales
+                            </div>
+                            <div class="card-body">
+                                <p>Total de Pedidos: @totalPedidos</p>
+                                <p>Total de Usuarios: @totalUsuarios</p>
+                                <p>Ingresos Totales: Bs. @ingresosTotales.ToString("F2")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                Estado de Pedidos
+                            </div>
+                            <div class="card-body">
+                                <p>Pedidos Pendientes: @pedidosPendientes</p>
+                                <p>Pedidos Entregados: @pedidosEntregados</p>
+                                <p>Pedidos Cancelados: @pedidosCancelados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h3>Listado de Pedidos</h3>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID Pedido</th>
+                                        <th>Usuario</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var pedido in pedidos)
+                                    {
+                                        <tr>
+                                            <td>@pedido.Id</td>
+                                            <td>@pedido.UsuarioId</td>
+                                            <td>@pedido.FechaCreacion.ToShortDateString()</td>
+                                            <td>Bs. @pedido.PrecioTotal.ToString("F2")</td>
+                                            <td>@pedido.Estado</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary" @onclick="() => VerDetallesPedido(pedido.Id)">Ver Detalles</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                @if (pedidoSeleccionado != null)
+                {
+                    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Detalles del Pedido #@pedidoSeleccionado.Id</h5>
+                                    <button type="button" class="close" @onclick="CerrarModal">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Usuario ID: @pedidoSeleccionado.UsuarioId</p>
+                                    <p>Fecha: @pedidoSeleccionado.FechaCreacion.ToShortDateString()</p>
+                                    <p>Estado: @pedidoSeleccionado.Estado</p>
+                                    <h6>Items:</h6>
+                                    <ul>
+                                        @foreach (var item in pedidoSeleccionado.Items)
+                                        {
+                                            <li>@item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio: $@(item.Accesorio.Precio * item.Cantidad)</li>
+                                        }
+                                    </ul>
+                                    <p>Total: $@pedidoSeleccionado.PrecioTotal.ToString("F2")</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+
+@code {
+    private List<PedidosComprasDto> pedidos = new List<PedidosComprasDto>();
+    private int totalPedidos;
+    private int totalUsuarios;
+    private decimal ingresosTotales;
+    private int pedidosPendientes;
+    private int pedidosEntregados;
+    private int pedidosCancelados;
+    private PedidosComprasDto pedidoSeleccionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            pedidos = await CarritoComprasServicio.GetPedidos();
+            totalPedidos = pedidos.Count();
+            ingresosTotales = pedidos.Sum(p => (decimal)p.PrecioTotal);
+            pedidosPendientes = pedidos.Count(p => p.Estado == EstadoPedido.Pendiente);
+            pedidosEntregados = pedidos.Count(p => p.Estado == EstadoPedido.Entregado);
+            pedidosCancelados = pedidos.Count(p => p.Estado == EstadoPedido.Cancelado);
+
+            var usuarios = await UsuariosServicio.GetUsuarios();
+            totalUsuarios = usuarios.Count();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error al cargar los datos: {ex.Message}");
+        }
+    }
+
+    private void VerDetallesPedido(int pedidoId)
+    {
+        pedidoSeleccionado = pedidos.FirstOrDefault(p => p.Id == pedidoId);
+    }
+
+    private void CerrarModal()
+    {
+        pedidoSeleccionado = null;
+    }
+}

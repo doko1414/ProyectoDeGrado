@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+<header id="header" class="fixed-top">
+    <div class="container d-flex align-items-center justify-content-between">
+
+        @* <h1 class="logo"><a href="index.html">Resi.</a></h1> *@
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <a href="/" class="logo"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>
+
+        <nav id="navbar" class="navbar">
+            <ul>
+                <li><a class="nav-link scrollto" href="/" tabindex="0" onclick="setActiveLink(this)">Inicio</a></li>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <li><a class="nav-link scrollto">Bienvenido, @context.User.Identity.Name</a></li>
+
+                        <AuthorizeView Roles="0">
+                            <Authorized Context="adminContext">
+                                <li><a class="nav-link scrollto" href="dashboard" onclick="setActiveLink(this)">Dashboard</a></li>
+                                <li><a class="nav-link scrollto" href="usuarios" onclick="setActiveLink(this)">Usuarios</a></li>
+                                <li><a class="nav-link scrollto" href="accesorios" onclick="setActiveLink(this)">Accesorios</a></li>
+                                <li><a class="nav-link scrollto" href="pedidos" onclick="setActiveLink(this)">Pedidos</a></li>
+                                <li><a class="nav-link scrollto" href="RegistroAdmin" onclick="setActiveLink(this)">Registrar</a></li>
+                                <li><a class="nav-link scrollto" href="reporte" onclick="setActiveLink(this)">Reporte</a></li>
+                            </Authorized>
+                        </AuthorizeView>
+
+                        <AuthorizeView Roles="1">
+                            <Authorized Context="clientContext">
+                                <li><a class="nav-link scrollto" href="bicicleta-personalizada" onclick="setActiveLink(this)">Personalizar</a></li>
+                                <li>
+                                    <a class="nav-link scrollto" href="miPerfil" onclick="setActiveLink(this)">
+                                        <i class="fas fa-user"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="nav-link scrollto" href="MonitoreoPedidos" onclick="setActiveLink(this)">
+                                        <i class="fas fa-box"></i>
+                                    </a>
+                                </li>
+                            </Authorized>
+                        </AuthorizeView>
+
+                        <li><a class="getstarted scrollto" href="salir">Salir</a></li>
+                    </Authorized>
+                    <NotAuthorized>
+                        <li><a class="nav-link scrollto inactive-link" href="Acceder" onclick="setActiveLink(this)">Acceder</a></li>
+                        <li><a class="nav-link scrollto inactive-link" href="registro" onclick="setActiveLink(this)">Registrarse</a></li>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ul>
+            <i class="bi bi-list mobile-nav-toggle"></i>
+        </nav><!-- .navbar -->
+
+    </div>
+</header>
+@code {
+
+}
