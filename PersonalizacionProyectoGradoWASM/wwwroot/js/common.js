@@ -166,6 +166,7 @@ window.inicializarModeloBicicleta = function (rutaModeloBicicleta) {
                 ajustarCamara();
                 scene.debugLayer.show();
             }
+            adjustLighting();
         },
         null,
         function (scene, message, exception) {
@@ -290,7 +291,7 @@ window.actualizarModeloBicicleta = function (accesorios) {
                             case "Mangos":
                                 switch (accesorio.descripcion) {
                                     case "Negro":
-                                        accesorioMesh.position = new BABYLON.Vector3(0, 1, 1);
+                                        accesorioMesh.position = new BABYLON.Vector3(0, 0, 0);
                                         break;
                                     case "Caucho amarillo":
                                         accesorioMesh.position = new BABYLON.Vector3(0, 1, 1.1);
@@ -339,6 +340,84 @@ window.actualizarModeloBicicleta = function (accesorios) {
     });
 };
 
+window.cambiarColorBicicleta = function (color) {
+    console.log("Cambiando color de la bicicleta a:", color);
+    if (scene) {
+        var frameMesh = scene.getMeshByName("OBJ.016_primitive2"); // Asegúrate de que este nombre coincida con el de tu modelo
+        if (frameMesh) {
+            console.log("Mesh encontrado:", frameMesh.name);
+            if (!frameMesh.material) {
+                frameMesh.material = new BABYLON.PBRMaterial("marcoMaterial", scene);
+                console.log("Nuevo material PBR creado para el marco");
+            }
+
+            var colorBabylon = BABYLON.Color3.FromHexString(color);
+
+            frameMesh.material.albedoColor = colorBabylon;
+            frameMesh.material.metallic = 1; // Ajusta este valor entre 0 y 1
+            frameMesh.material.roughness = 1; // Ajusta este valor entre 0 y 1
+            frameMesh.material.emissiveColor = colorBabylon.scale(0.2); // Añade un poco de emisión para realzar el color
+
+            console.log("Color del marco cambiado a", color);
+        } else {
+            console.log("Mesh del marco no encontrado, cambiando color de toda la bicicleta");
+            if (bicicletaMesh) {
+                var newMaterial = new BABYLON.PBRMaterial("bicicletaMaterial", scene);
+
+                var colorBabylon = BABYLON.Color3.FromHexString(color);
+
+                newMaterial.albedoColor = colorBabylon;
+                newMaterial.metallic = 1; // Ajusta este valor entre 0 y 1
+                newMaterial.roughness = 1; // Ajusta este valor entre 0 y 1
+                newMaterial.emissiveColor = colorBabylon.scale(0.2);
+
+                bicicletaMesh.material = newMaterial;
+
+                if (bicicletaMesh.getChildMeshes) {
+                    var childMeshes = bicicletaMesh.getChildMeshes();
+                    for (var i = 0; i < childMeshes.length; i++) {
+                        childMeshes[i].material = newMaterial;
+                    }
+                }
+                console.log("Color de toda la bicicleta cambiado a", color);
+            } else {
+                console.error("No se pudo encontrar ni el marco ni la bicicleta completa");
+            }
+        }
+
+        // Ajustar la iluminación de la escena
+        adjustLighting();
+    } else {
+        console.error("La escena no está inicializada");
+    }
+};
+function adjustLighting() {
+    // Ajustar la luz existente
+    var hemisphericLight = scene.getLightByName("light");
+    if (hemisphericLight) {
+        hemisphericLight.intensity = 0.7;
+        hemisphericLight.diffuse = new BABYLON.Color3(1, 1, 1);
+    }
+
+    // Añadir una luz direccional si no existe
+    var directionalLight = scene.getLightByName("directionalLight");
+    if (!directionalLight) {
+        directionalLight = new BABYLON.DirectionalLight("directionalLight", new BABYLON.Vector3(-1, -2, -1), scene);
+    }
+    directionalLight.intensity = 0.5;
+
+    // Añadir una luz puntual para resaltar el modelo
+    var pointLight = scene.getLightByName("pointLight");
+    if (!pointLight) {
+        pointLight = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(0, 5, -10), scene);
+    }
+    pointLight.intensity = 0.3;
+    // Añadir una luz ambiental si no existe
+    if (!scene.getLightByName("ambientLight")) {
+        var ambientLight = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 1, 0), scene);
+        ambientLight.intensity = 0.2;
+    }
+}
 function createScene() {
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = BABYLON.Color3.FromHexString("#EDECE0");

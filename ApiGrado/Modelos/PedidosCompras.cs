@@ -15,5 +15,7 @@ namespace ApiGrado.Modelos
         public double PrecioTotal { get; set; }
         public EstadoPedido Estado { get; set; }
         public DateTime FechaCreacion { get; set; }
+        [Required]
+        public string ColorBicicleta { get; set; }
     }
 }

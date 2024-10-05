@@ -16,21 +16,48 @@ namespace PersonalizacionProyectoGradoWASM.Servicios
 
         public async Task<PedidosComprasDto> AgregarPedido(PedidosComprasDto pedido)
         {
-            var content = JsonConvert.SerializeObject(pedido);
-            var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
-            var response = await _cliente.PostAsync($"{Inicializar.UrlBaseApi}api/pedido", bodyContent);
-            if (response.IsSuccessStatusCode)
+            try
             {
+                Console.WriteLine($"Iniciando AgregarPedido para usuario {pedido.UsuarioId}");
+                var content = JsonConvert.SerializeObject(pedido);
+                Console.WriteLine($"Pedido serializado: {content}");
+
+                var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
+                var response = await _cliente.PostAsync($"{Inicializar.UrlBaseApi}api/pedido", bodyContent);
+
+                Console.WriteLine($"Respuesta del servidor: StatusCode={response.StatusCode}");
                 var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<PedidosComprasDto>(contentTemp);
-                return result;
+                Console.WriteLine($"Contenido de la respuesta: {contentTemp}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = JsonConvert.DeserializeObject<PedidosComprasDto>(contentTemp);
+                    Console.WriteLine($"Pedido agregado con éxito. ID: {result.Id}");
+                    return result;
+                }
+                else
+                {
+                    var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
+                    Console.WriteLine($"Error al agregar pedido: {errorModel.ErrorMessage}");
+                    throw new Exception($"Error al agregar pedido: {errorModel.ErrorMessage}");
+                }
             }
-            else
+            catch (JsonException jsonEx)
             {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
-                throw new Exception(errorModel.ErrorMessage);
+                Console.WriteLine($"Error al deserializar la respuesta: {jsonEx.Message}");
+                throw new Exception("Error al procesar la respuesta del servidor", jsonEx);
             }
+            catch (HttpRequestException httpEx)
+            {
+                Console.WriteLine($"Error de red al agregar pedido: {httpEx.Message}");
+                throw new Exception("Error de conexión al servidor", httpEx);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inesperado al agregar pedido: {ex.Message}");
+                throw new Exception("Error inesperado al procesar el pedido", ex);
+            }
+
         }
 
         public async Task<PedidosComprasDto> GetPedido(int pedidoId)

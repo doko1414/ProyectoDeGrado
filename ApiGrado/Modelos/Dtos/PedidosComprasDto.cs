@@ -11,5 +11,7 @@ namespace ApiGrado.Modelos.Dtos
         public DateTime FechaCreacion { get; set; }
         public double PrecioTotal { get; set; }
         public EstadoPedido Estado { get; set; }
+        [Required]
+        public string ColorBicicleta { get; set; }
     }
 }
