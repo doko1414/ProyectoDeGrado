@@ -40,22 +40,41 @@ namespace ApiGrado.Repositorio
                 .ThenInclude(i => i.Accesorio)
                 .FirstOrDefault(c => c.Id == carritoId);
         }
-        public bool ActualizarPedido(PedidosCompras carrito)
+        public bool ActualizarPedido(PedidosCompras pedido)
         {
-            var carritoExistente = _bd.PedidosCompras
-                .Include(c => c.Items)
-                .FirstOrDefault(c => c.Id == carrito.Id);
+            var pedidoExistente = _bd.PedidosCompras
+            .Include(c => c.Items)
+            .FirstOrDefault(c => c.Id == pedido.Id);
 
-            if (carritoExistente == null)
+            if (pedidoExistente == null)
             {
                 return false;
             }
-            carritoExistente.PrecioTotal = carrito.PrecioTotal;
-            carritoExistente.Estado = carrito.Estado;
-            _bd.PedidosItems.RemoveRange(carritoExistente.Items);
-            carritoExistente.Items.Clear();
-            carritoExistente.Items.AddRange(carrito.Items);
-            _bd.PedidosCompras.Update(carritoExistente);
+
+            // Actualizar solo los campos que deben cambiar
+            pedidoExistente.Estado = pedido.Estado;
+            pedidoExistente.PrecioTotal = pedido.PrecioTotal;
+
+            // No modificamos los Items existentes
+            // Si hay nuevos Items, los agregamos sin eliminar los existentes
+            if (pedido.Items != null && pedido.Items.Any())
+            {
+                foreach (var nuevoItem in pedido.Items)
+                {
+                    if (!pedidoExistente.Items.Any(i => i.AccesorioId == nuevoItem.AccesorioId))
+                    {
+                        pedidoExistente.Items.Add(nuevoItem);
+                    }
+                    else
+                    {
+                        // Actualizar cantidad si el item ya existe
+                        var itemExistente = pedidoExistente.Items.First(i => i.AccesorioId == nuevoItem.AccesorioId);
+                        itemExistente.Cantidad = nuevoItem.Cantidad;
+                    }
+                }
+            }
+
+            _bd.PedidosCompras.Update(pedidoExistente);
             return Guardar();
         }
         public List<PedidosCompras> GetPedidos()

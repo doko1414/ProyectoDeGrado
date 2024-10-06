@@ -43,28 +43,58 @@ function OcultarModalConfirmacionBorrado() {
     $('#modalConfirmacionBorrado').modal('hide');
 }
 
-window.initializeChart = () => {
-    const ctx = document.getElementById('myChart').getContext('2d');
-    const myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['07/04/2023', '08/04/2023'],
-            datasets: [{
-                label: 'Número de ventas por día',
-                data: [3, 2],
-                backgroundColor: '#4B0082',
-                borderColor: '#4B0082',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+function crearGraficoPedidos(pendientes, enProceso, enviados, entregados, cancelados) {
+    var ctx = document.getElementById('pedidosChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Pendientes', 'En Proceso', 'Enviados', 'Entregados', 'Cancelados'],
+                datasets: [{
+                    data: [pendientes, enProceso, enviados, entregados, cancelados],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(255, 206, 86, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(255, 99, 132, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, // Esto permite que controlemos el tamaño
+                aspectRatio: 5, // Ajusta este valor para cambiar la proporción alto/ancho
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Pedidos por Estado'
+                    }
                 }
             }
-        }
-    });
+        });
+    } else {
+        console.error('No se encontró el elemento canvas para el gráfico de pedidos');
+    }
+}
+function saveAsFile(filename, bytesBase64) {
+    var link = document.createElement('a');
+    link.download = filename;
+    link.href = "data:application/octet-stream;base64," + bytesBase64;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 function mostrarModelo3D(rutaModelo3D) {
     console.log("Ruta del modelo:", rutaModelo3D);

@@ -50,7 +50,7 @@ namespace PersonalizacionProyectoGradoWASM.Pages.Autentificacion
                     switch (userRole)
                     {
                         case "0" :
-                            navigationManager.NavigateTo("/dashboard");
+                            navigationManager.NavigateTo("/usuarios");
                             break;
                         case "1" :
                             navigationManager.NavigateTo("/bicicleta-personalizada");

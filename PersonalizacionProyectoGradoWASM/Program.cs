@@ -6,6 +6,7 @@ using PersonalizacionProyectoGradoWASM;
 using PersonalizacionProyectoGradoWASM.Helpers;
 using PersonalizacionProyectoGradoWASM.Servicios.IServicios;
 using PersonalizacionProyectoGradoWASM.Servicios;
+using OfficeOpenXml;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -18,7 +19,7 @@ builder.Services.AddScoped<IAccesoriosServicio,AccesoriosServicio>();
 builder.Services.AddScoped<IUsuariosServicio, UsuariosServicio>();
 builder.Services.AddScoped<IServicioAutenticacion, ServicioAutenticacion>();
 
-
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
 /// Servicios
 builder.Services.AddBlazoredLocalStorage();
