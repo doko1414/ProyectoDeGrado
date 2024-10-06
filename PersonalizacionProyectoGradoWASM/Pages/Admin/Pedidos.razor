@@ -15,8 +15,22 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12">
-                
+
                 <h3>Pedidos de Clientes</h3>
+
+                <!-- Controles de filtrado y búsqueda -->
+                <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Buscar por nombre de cliente" @bind="filtroNombre" @bind:event="oninput" @onkeyup="FiltrarPedidos" />
+                </div>
+                <div class="mb-3">
+                    <select class="form-control" @bind="filtroEstado" @bind:after="FiltrarPedidos">
+                        <option value="">Todos los estados</option>
+                        @foreach (var estado in Enum.GetValues(typeof(EstadoPedido)))
+                        {
+                            <option value="@estado">@estado</option>
+                        }
+                    </select>
+                </div>
 
                 @if (cargando)
                 {
@@ -41,9 +55,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (pedidos != null && pedidos.Any())
+                            @if (pedidosFiltrados != null && pedidosFiltrados.Any())
                             {
-                                @foreach (var pedido in pedidos)
+                                @foreach (var pedido in pedidosFiltrados)
                                 {
                                     var usuario = usuarios.FirstOrDefault(u => u.Id == pedido.UsuarioId);
                                     <tr>
@@ -51,7 +65,7 @@
                                         <td>@(usuario != null ? $"{usuario.Nombre} {usuario.Apellido}" : "N/A")</td>
                                         <td>@(usuario != null ? FormatearNumeroCelular(usuario.NumeroCelular) : "N/A")</td>
                                         <td>@pedido.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
-                                        <td>@pedido.PrecioTotal.ToString("C")</td>
+                                        <td>Bs @pedido.PrecioTotal.ToString("F2")</td>
                                         <td>@pedido.Estado</td>
                                         <td>
                                             <button class="btn btn-primary" @onclick="() => MostrarDetalles(pedido)">Ver Detalles</button>
@@ -96,10 +110,10 @@
                                         <ul>
                                             @foreach (var item in pedidoSeleccionado.Items)
                                             {
-                                                <li>@item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio: @item.Accesorio.Precio.ToString("C")</li>
+                                                <li>@item.Accesorio.Nombre - @item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio:Bs @item.Accesorio.Precio.ToString("F2")</li>
                                             }
                                         </ul>
-                                        <p><strong>Total: @pedidoSeleccionado.PrecioTotal.ToString("C")</strong></p>
+                                        <p><strong>Total:Bs @pedidoSeleccionado.PrecioTotal.ToString("F2")</strong></p>
                                     }
                                     else
                                     {
@@ -138,8 +152,6 @@
                         </div>
                     </div>
                 }
-
-                
             </div>
         </div>
     </div>
@@ -147,12 +159,15 @@
 
 @code {
     private List<PedidosComprasDto> pedidos;
+    private List<PedidosComprasDto> pedidosFiltrados;
     private IEnumerable<UsuarioGestion> usuarios;
     private PedidosComprasDto pedidoSeleccionado;
     private bool mostrarModalEstado = false;
     private EstadoPedido nuevoEstado;
     private bool cargando = true;
     private string error;
+    private string filtroNombre = "";
+    private string filtroEstado = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -210,12 +225,26 @@
 
             Logger.LogInformation($"Pedidos cargados: {pedidos?.Count ?? 0}");
             Logger.LogInformation($"Usuarios cargados: {usuarios?.Count() ?? 0}");
+
+            FiltrarPedidos();
         }
         catch (Exception ex)
         {
             error = "Error al cargar los datos.";
             Logger.LogError(ex, "Error en CargarDatos");
         }
+    }
+
+    private void FiltrarPedidos()
+    {
+        pedidosFiltrados = pedidos
+            ?.Where(p =>
+                (string.IsNullOrEmpty(filtroNombre) ||
+                 (usuarios.FirstOrDefault(u => u.Id == p.UsuarioId)?.Nombre + " " +
+                  usuarios.FirstOrDefault(u => u.Id == p.UsuarioId)?.Apellido)
+                    .Contains(filtroNombre, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(filtroEstado) || p.Estado.ToString() == filtroEstado))
+            .ToList();
     }
 
     private async Task MostrarDetalles(PedidosComprasDto pedido)

@@ -10,110 +10,162 @@
 @inject IUsuariosServicio UsuariosServicio
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
+
 <section id="Pedidos" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <h2>Panel de Reportes Administrativos</h2>
+        <h2 class="text-center mb-4">Panel de Reportes Administrativos</h2>
 
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                Estadísticas Generales
-                            </div>
-                            <div class="card-body">
-                                <p>Total de Pedidos: @totalPedidos</p>
-                                <p>Total de Usuarios: @totalUsuarios</p>
-                                <p>Ingresos Totales: Bs. @ingresosTotales.ToString("F2")</p>
-                            </div>
-                        </div>
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="dashboard-card">
+                    <div class="dashboard-card-icon">
+                        <i class="fas fa-layer-group" style="color: #E1AE47;"></i>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                Estado de Pedidos
-                            </div>
-                            <div class="card-body">
-                                <p>Pedidos Pendientes: @pedidosPendientes</p>
-                                <p>Pedidos Entregados: @pedidosEntregados</p>
-                                <p>Pedidos Cancelados: @pedidosCancelados</p>
-                            </div>
-                        </div>
+                    <div class="dashboard-card-content">
+                        <h3>Total de Pedidos:</h3>
+                        <p>@totalPedidos</p>
                     </div>
                 </div>
-
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <h3>Listado de Pedidos</h3>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ID Pedido</th>
-                                        <th>Usuario</th>
-                                        <th>Fecha</th>
-                                        <th>Total</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var pedido in pedidos)
-                                    {
-                                        <tr>
-                                            <td>@pedido.Id</td>
-                                            <td>@pedido.UsuarioId</td>
-                                            <td>@pedido.FechaCreacion.ToShortDateString()</td>
-                                            <td>Bs. @pedido.PrecioTotal.ToString("F2")</td>
-                                            <td>@pedido.Estado</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-primary" @onclick="() => VerDetallesPedido(pedido.Id)">Ver Detalles</button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="dashboard-card">
+                    <div class="dashboard-card-icon">
+                        <i class="bi bi-people-fill" style="color: #E1AE47;"></i>
+                    </div>
+                    <div class="dashboard-card-content">
+                        <h3>Total de Usuarios:</h3>
+                        <p>@totalUsuarios</p>
                     </div>
                 </div>
-
-                @if (pedidoSeleccionado != null)
-                {
-                    <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Detalles del Pedido #@pedidoSeleccionado.Id</h5>
-                                    <button type="button" class="close" @onclick="CerrarModal">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Usuario ID: @pedidoSeleccionado.UsuarioId</p>
-                                    <p>Fecha: @pedidoSeleccionado.FechaCreacion.ToShortDateString()</p>
-                                    <p>Estado: @pedidoSeleccionado.Estado</p>
-                                    <h6>Items:</h6>
-                                    <ul>
-                                        @foreach (var item in pedidoSeleccionado.Items)
-                                        {
-                                            <li>@item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio: $@(item.Accesorio.Precio * item.Cantidad)</li>
-                                        }
-                                    </ul>
-                                    <p>Total: $@pedidoSeleccionado.PrecioTotal.ToString("F2")</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cerrar</button>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="dashboard-card">
+                    <div class="dashboard-card-icon">
+                        <h1 style="color:#E1AE47;">Bs.</h1>
                     </div>
-                }
+                    <div class="dashboard-card-content">
+                        <h3>Ingresos Totales:</h3>
+                        <p>@ingresosTotales.ToString("F2")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">Estado de Pedidos</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedidos Pendientes
+                                <span class="badge bg-primary rounded-pill">@pedidosPendientes</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedidos En Proceso
+                                <span class="badge bg-info rounded-pill">@pedidosEnProceso</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedidos Enviados
+                                <span class="badge bg-warning rounded-pill">@pedidosEnviados</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedidos Entregados
+                                <span class="badge bg-success rounded-pill">@pedidosEntregados</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Pedidos Cancelados
+                                <span class="badge bg-danger rounded-pill">@pedidosCancelados</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h3 class="card-title">Gráfico de Pedidos</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Aquí puedes agregar un gráfico usando una librería como Chart.js -->
+                        <p class="text-muted">Gráfico de distribución de pedidos por estado</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Listado de Pedidos</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID Pedido</th>
+                                <th>Usuario</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pedido in pedidos)
+                            {
+                                <tr>
+                                    <td>@pedido.Id</td>
+                                    <td>@pedido.UsuarioId</td>
+                                    <td>@pedido.FechaCreacion.ToShortDateString()</td>
+                                    <td>Bs. @pedido.PrecioTotal.ToString("F2")</td>
+                                    <td>@pedido.Estado</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" @onclick="() => VerDetallesPedido(pedido.Id)">Ver Detalles</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
+@if (pedidoSeleccionado != null)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalles del Pedido #@pedidoSeleccionado.Id</h5>
+                    <button type="button" class="close" @onclick="CerrarModal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Usuario ID: @pedidoSeleccionado.UsuarioId</p>
+                    <p>Fecha: @pedidoSeleccionado.FechaCreacion.ToShortDateString()</p>
+                    <p>Estado: @pedidoSeleccionado.Estado</p>
+                    <h6>Items:</h6>
+                    <ul>
+                        @foreach (var item in pedidoSeleccionado.Items)
+                        {
+                            <li>@item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio: $@(item.Accesorio.Precio * item.Cantidad)</li>
+                        }
+                    </ul>
+                    <p>Total: $@pedidoSeleccionado.PrecioTotal.ToString("F2")</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private List<PedidosComprasDto> pedidos = new List<PedidosComprasDto>();
@@ -121,6 +173,8 @@
     private int totalUsuarios;
     private decimal ingresosTotales;
     private int pedidosPendientes;
+    private int pedidosEnProceso;
+    private int pedidosEnviados;
     private int pedidosEntregados;
     private int pedidosCancelados;
     private PedidosComprasDto pedidoSeleccionado;
@@ -138,6 +192,8 @@
             totalPedidos = pedidos.Count();
             ingresosTotales = pedidos.Sum(p => (decimal)p.PrecioTotal);
             pedidosPendientes = pedidos.Count(p => p.Estado == EstadoPedido.Pendiente);
+            pedidosEnProceso = pedidos.Count(p => p.Estado == EstadoPedido.EnProceso);
+            pedidosEnviados = pedidos.Count(p => p.Estado == EstadoPedido.Enviado);
             pedidosEntregados = pedidos.Count(p => p.Estado == EstadoPedido.Entregado);
             pedidosCancelados = pedidos.Count(p => p.Estado == EstadoPedido.Cancelado);
 
