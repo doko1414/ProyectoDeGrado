@@ -21,7 +21,7 @@
 # General
 --------------------------------------------------------------*/
 body {
-    font-family: "Open Sans", sans-serif;
+    font-family: 'Roboto', sans-serif;
     color: #444444;
     background: #EDECE0;
 }
@@ -35,14 +35,19 @@ a:hover {
     color: #2a2af0;
     text-decoration: none;
 }
-
+p,
+span,
+div,
+td,
+th,
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-    font-family: "Raleway", sans-serif;
+    font-family: 'Raleway', sans-serif;
+    color: #4B0082;
 }
 
 /*--------------------------------------------------------------
@@ -102,7 +107,7 @@ h6 {
     line-height: 1;
     font-weight: 700;
     letter-spacing: 2px;
-    font-family: "Poppins", sans-serif;
+    font-family: 'Raleway', sans-serif;
 }
 
 #header .logo a {
@@ -400,7 +405,7 @@ h6 {
         font-weight: 400;
         line-height: 56px;
         color: #4B0082;
-        font-family: "Poppins", sans-serif;
+        font-family: 'Raleway', sans-serif;
     }
 
     #hero h2 {
@@ -431,7 +436,7 @@ h6 {
 
     #hero .btn-get-started,
     #hero .btn-get-quote {
-        font-family: "Poppins", sans-serif;
+        font-family: 'Raleway', sans-serif;
         font-weight: 400;
         font-size: 15px;
         letter-spacing: 0.5px;
@@ -529,7 +534,7 @@ h6 {
 # card
 --------------------------------------------------------------*/
 .wrapper {
-    font-family: "Open Sans", sans-serif;
+    font-family: 'Raleway', sans-serif;
     max-width: 350px;
     min-height: 500px;
     margin: auto;
@@ -554,7 +559,7 @@ h6 {
         }
 
     .wrapper .name {
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Raleway', sans-serif;
         font-weight: 600;
         font-size: 1.4rem;
         letter-spacing: 1.3px;
@@ -571,7 +576,7 @@ h6 {
     }
 
         .wrapper .form-field input {
-            font-family: "Open Sans", sans-serif;
+            font-family: 'Raleway', sans-serif;
             width: 100%;
             border: none;
             outline: none;
@@ -588,7 +593,7 @@ h6 {
         }
 
     .wrapper .btn {
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Raleway', sans-serif;
         width: 100%;
         height: 40px;
         background-color: #e1ae47;
@@ -607,7 +612,7 @@ h6 {
         }
 
     .wrapper a {
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Raleway', sans-serif;
         text-decoration: none;
         font-size: 0.8rem;
         color: #03A9F4;
@@ -649,7 +654,7 @@ h6 {
 # card2
 --------------------------------------------------------------*/
 .wrapperdos {
-    font-family: "Open Sans", sans-serif;
+    font-family: 'Raleway', sans-serif;
     max-width: 450px;
     min-height: 500px;
     margin: auto;
@@ -674,7 +679,7 @@ h6 {
         }
 
     .wrapperdos .name {
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Raleway', sans-serif;
         font-weight: 600;
         font-size: 1.4rem;
         letter-spacing: 1.3px;
@@ -692,7 +697,7 @@ h6 {
     }
 
         .wrapperdos .form-field input {
-            font-family: "Open Sans", sans-serif;
+            font-family: 'Raleway', sans-serif;
             width: 100%;
             border: none;
             outline: none;
@@ -709,7 +714,7 @@ h6 {
         }
 
     .wrapperdos .btn {
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Raleway', sans-serif;
         width: 100%;
         height: 40px;
         background-color: #e1ae47;
@@ -728,7 +733,7 @@ h6 {
         }
 
     .wrapperdos a {
-        font-family: "Open Sans", sans-serif;
+        font-family: 'Raleway', sans-serif;
         text-decoration: none;
         font-size: 0.8rem;
         color: #03A9F4;
@@ -988,6 +993,155 @@ section {
     color: #EDECE0; /* Blanco cuando está activo */
     text-decoration: underline; /* Opcional */
 }
+/*--------------------------------------------------------------
+# Reportes
+--------------------------------------------------------------*/
+/* Estilos específicos para la página de Reportes */
+#Pedidos {
+    background-color: #EDECE0;
+    min-height: 100vh;
+    padding-top: 80px;
+}
+
+.section-title h2 {
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    position: relative;
+    color: #4B0082;
+}
+
+    .section-title h2::after {
+        content: '';
+        position: absolute;
+        display: block;
+        width: 50px;
+        height: 3px;
+        background: #E1AE47;
+        bottom: 0;
+        left: calc(50% - 25px);
+    }
+
+.dashboard-card {
+    background-color: #EDECE0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    height: 100%;
+}
+
+.dashboard-card-icon {
+    font-size: 2.5rem;
+    color: #E1AE47;
+    margin-bottom: 10px;
+}
+
+.dashboard-card-content h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #4B0082;
+}
+
+.dashboard-card-content p {
+    margin: 5px 0 0;
+    font-size: 1.5rem;
+    color: #4B0082;
+}
+
+.card {
+    background-color: #EDECE0;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #E1AE47;
+    color: #4B0082;
+    border-bottom: none;
+}
+
+.card-body {
+    background-color: #EDECE0;
+}
+
+.btn-primary {
+    background-color: #E1AE47;
+    color: #4B0082;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #4B0082;
+        color: #EDECE0;
+    }
+
+.btn-secondary {
+    background-color: #4B0082;
+    color: #EDECE0;
+    border: none;
+}
+
+    .btn-secondary:hover {
+        background-color: #E1AE47;
+        color: #4B0082;
+    }
+
+/* Estilos actualizados para la tabla y el estado de pedidos */
+.table {
+    background-color: #EDECE0;
+    color: #4B0082;
+}
+
+    .table thead th {
+        background-color: #E1AE47;
+        color: #4B0082;
+    }
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(225, 174, 71, 0.1);
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #EDECE0;
+}
+
+.list-group-item {
+    background-color: #EDECE0;
+    border-color: #E1AE47;
+    color: #4B0082;
+}
+
+    .list-group-item:nth-of-type(odd) {
+        background-color: rgba(225, 174, 71, 0.1);
+    }
+
+.modal-content {
+    background-color: #EDECE0;
+    color: #4B0082;
+}
+
+.modal-header {
+    background-color: #E1AE47;
+    color: #4B0082;
+}
+
+.form-control {
+    background-color: #EDECE0;
+    border-color: #4B0082;
+    color: #4B0082;
+}
+
+    .form-control:focus {
+        border-color: #E1AE47;
+        box-shadow: 0 0 0 0.2rem rgba(225, 174, 71, 0.25);
+    }
+
+/* Asegurarse de que todo el texto en la página tenga el color #4B0082 */
+
 /*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
