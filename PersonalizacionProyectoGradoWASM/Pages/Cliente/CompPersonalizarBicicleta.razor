@@ -12,51 +12,54 @@
 @inject NavigationManager NavigationManager
 @attribute [Authorize(Roles = "1")]
 
-<section id="personalizar" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
+<PageTitle>Personaliza tu Bicicleta</PageTitle>
+<section id="personalizar" class="d-flex justify-content-center">
     <div class="container">
         <div class="row">
-            <div class="col-lg-4 pt-2 pt-lg-0 order-2 order-lg-1 d-flex flex-column justify-content-center">
-                <h2>Personaliza tu Bicicleta</h2>
-                <!-- Selector de color -->
-                <div class="form-group mb-3">
-                    <label for="colorSelector">Color de la Bicicleta:</label>
-                    <input type="color" id="colorSelector" class="form-control" @bind="colorBicicleta" @bind:event="oninput" @onchange="CambiarColorBicicleta" />
-                </div>
-
-                <p>Selecciona los accesorios para tu bicicleta:</p>
-
-                @foreach (var tipoAccesorio in tiposAccesorios)
-                {
-                    <div class="form-group">
-                        <label for="@tipoAccesorio">@tipoAccesorio:</label>
-                        <select class="form-control" id="@tipoAccesorio" @onchange="@(e => CambiarAccesorio(tipoAccesorio, e.Value.ToString()))">
-                            <option value="">Seleccionar @tipoAccesorio</option>
-                            @if (accesoriosPorTipo.ContainsKey(tipoAccesorio))
-                            {
-                                @foreach (var accesorio in accesoriosPorTipo[tipoAccesorio])
-                                {
-                                    <option value="@accesorio.Id">@accesorio.Descripcion - Bs @accesorio.Precio.ToString("F2")</option>
-                                }
-                            }
-                        </select>
+            <div class="col-lg-4 order-1 d-flex flex-column justify-content-between">
+                <div>
+                    <h2>Personaliza tu Bicicleta</h2>
+                    
+                    <div class="form-group mb-3">
+                        <label for="colorSelector">Color de la Bicicleta:</label>
+                        <input type="color" id="colorSelector" class="form-control" @bind="colorBicicleta" @bind:event="oninput" @onchange="CambiarColorBicicleta" />
                     </div>
-                }
 
-                <div class="mt-3">
-                    <h4>Precio Total: Bs @precioTotal.ToString("F2")</h4>
+                    <p>Selecciona los accesorios para tu bicicleta:</p>
+
+                    @foreach (var tipoAccesorio in tiposAccesorios)
+                    {
+                        <div class="form-group">
+                            <label for="@tipoAccesorio">@tipoAccesorio:</label>
+                            <select class="form-control" id="@tipoAccesorio" @onchange="@(e => CambiarAccesorio(tipoAccesorio, e.Value.ToString()))">
+                                <option value="">Seleccionar @tipoAccesorio</option>
+                                @if (accesoriosPorTipo.ContainsKey(tipoAccesorio))
+                                {
+                                    @foreach (var accesorio in accesoriosPorTipo[tipoAccesorio])
+                                    {
+                                        <option value="@accesorio.Id">@accesorio.Descripcion - Bs @accesorio.Precio.ToString("F2")</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    }
                 </div>
-
-                <button class="btn btn-primary mt-3" @onclick="RealizarPedido">Realizar Pedido</button>
+                
+                <div class="mt-auto">
+                    <div class="price-section">
+                        <h4>Precio Total: Bs @precioTotal.ToString("F2")</h4>
+                    </div>
+                    <button class="btn btn-primary" @onclick="RealizarPedido">Realizar Pedido</button>
+                </div>
             </div>
-            <div class="col-lg-8 order-1 order-lg-2 hero-img">
-                <div id="canvasContainer" style="width: 100%; height: 500px;">
-                    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+            <div class="col-lg-8 order-2">
+                <div id="canvasContainer">
+                    <canvas id="renderCanvas"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
 @code {
     private string rutaModelo3D;
     private List<string> tiposAccesorios = new List<string> { "Montura", "Bocina", "Canasta", "Espejos", "Mangos", "Timbre", "Asiento para Niño " };
