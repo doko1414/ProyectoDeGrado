@@ -116,16 +116,25 @@
 
     public async Task Click_Confirmacion_Borrado(bool confirmado)
     {
-        estaProcesando = true;
-        if (confirmado && BorrarIdAccesorio != null)
+        if (confirmado && BorrarIdAccesorio.HasValue)
         {
-            await accesoriosServicio.EliminarAccesorio(BorrarIdAccesorio.Value);
-            await JsRuntime.ToastrSuccess("Accesorio borrado correctamente");
-            Accesorios = await accesoriosServicio.GetAccesorios();
+            estaProcesando = true;
+            try
+            {
+                await accesoriosServicio.EliminarAccesorio(BorrarIdAccesorio.Value);
+                await JsRuntime.InvokeVoidAsync("ShowToastr", "success", "Accesorio eliminado correctamente");
+                Accesorios = await accesoriosServicio.GetAccesorios();
+            }
+            catch (Exception ex)
+            {
+                await JsRuntime.InvokeVoidAsync("ShowToastr", "error", "Error al eliminar el accesorio");
+            }
+            finally
+            {
+                estaProcesando = false;
+                BorrarIdAccesorio = null;
+            }
         }
-
-        await JsRuntime.InvokeVoidAsync("OcultarModalConfirmacionBorrado");
-        estaProcesando = false;
     }
      private async Task MostrarModelo3D(string rutaModelo3D)
     {

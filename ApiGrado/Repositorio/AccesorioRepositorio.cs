@@ -2,16 +2,19 @@
 using ApiGrado.Modelos;
 using ApiGrado.Repositorio.IRepositorio;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using System;
 
 namespace ApiGrado.Repositorio
 {
     public class AccesorioRepositorio:IAccesorioRepositorio
     {
         private readonly ApplicationDbContext _bd;
-
-        public AccesorioRepositorio(ApplicationDbContext bd)
+        private readonly IWebHostEnvironment _environment;
+        public AccesorioRepositorio(ApplicationDbContext bd, IWebHostEnvironment environment)
         {
             _bd = bd;
+            _environment = environment;
         }
 
         public bool ActualizarAccesorio(Accesorio accesorio)
@@ -30,9 +33,26 @@ namespace ApiGrado.Repositorio
 
         public bool BorrarAccesorio(Accesorio accesorio)
         {
+            if (accesorio == null)
+            {
+                return false;
+            }
+
+            // Delete the associated 3D model file
+            if (!string.IsNullOrEmpty(accesorio.RutaImagen))
+            {
+                var filePath = Path.Combine(_environment.ContentRootPath, accesorio.RutaImagen);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+
+            // Remove the accesorio from the database
             _bd.Accesorios.Remove(accesorio);
             return Guardar();
         }
+
 
         public bool CrearAccesorio(Accesorio accesorio)
         {

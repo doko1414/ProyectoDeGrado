@@ -20,6 +20,7 @@ namespace PersonalizacionProyectoGradoWASM.Servicios
             var content = JsonConvert.SerializeObject(accesorio);
             var bodyContent = new StringContent(content, Encoding.UTF8, "application/json");
             var response = await _cliente.PatchAsync($"{Inicializar.UrlBaseApi}api/accesorios/{accesorioId}", bodyContent);
+
             if (response.IsSuccessStatusCode)
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
@@ -29,6 +30,7 @@ namespace PersonalizacionProyectoGradoWASM.Servicios
             else
             {
                 var contentTemp = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error response: {contentTemp}");
                 var errorModel = JsonConvert.DeserializeObject<ModeloError>(contentTemp);
                 throw new Exception(errorModel.ErrorMessage);
             }

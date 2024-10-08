@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ApiGrado.Controllers
 {
@@ -16,11 +17,12 @@ namespace ApiGrado.Controllers
     {
         private readonly IAccesorioRepositorio _postRepo;
         private readonly IMapper _mapper;
-
-        public AccesoriosController(IAccesorioRepositorio postRepo, IMapper mapper)
+        private readonly ILogger<AccesoriosController> _logger;
+        public AccesoriosController(IAccesorioRepositorio postRepo, IMapper mapper, ILogger<AccesoriosController> logger)
         {
             _postRepo = postRepo;
             _mapper = mapper;
+            _logger = logger;
         }
         [AllowAnonymous]
         [HttpGet]
@@ -93,20 +95,12 @@ namespace ApiGrado.Controllers
             return CreatedAtRoute("GetAccesorio", new { postId = accesorio.Id }, accesorio);
         }
 
-        
-        [HttpPatch("{postId:int}", Name = "ActualizarPatchAccesorio")]
-        [ProducesResponseType(201, Type = typeof(AccesorioCrearDto))]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+
+        [HttpPatch("{accesorioId:int}", Name = "ActualizarPatchAccesorio")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult ActualizarPatchAccesorio(int accesorioId, [FromBody] AccesorioActualizarDto actualizarAccesorioDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             if (actualizarAccesorioDto == null || accesorioId != actualizarAccesorioDto.Id)
             {
                 return BadRequest(ModelState);
@@ -116,33 +110,30 @@ namespace ApiGrado.Controllers
 
             if (!_postRepo.ActualizarAccesorio(accesorio))
             {
-                ModelState.AddModelError("", $"Algo salió mal guardando el registro{accesorio.Descripcion}");
+                ModelState.AddModelError("", $"Algo salió mal actualizando el registro {accesorio.Descripcion}");
                 return StatusCode(500, ModelState);
             }
             return NoContent();
         }
 
-        
-        [HttpDelete("{postId:int}", Name = "BorrarAccesorio")]
+        [HttpDelete("{accesorioId:int}", Name = "BorrarAccesorio")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult BorrarAccesorio(int accesorioId)
         {
-            if (!_postRepo.ExisteAccesorio(accesorioId))
+            var accesorio = _postRepo.GetAccesorio(accesorioId);
+            if (accesorio == null)
             {
                 return NotFound();
             }
 
-            var accesorio = _postRepo.GetAccesorio(accesorioId);
-
             if (!_postRepo.BorrarAccesorio(accesorio))
             {
-                ModelState.AddModelError("", $"Error, Algo salió mal borrando el registro{accesorio.Descripcion}");
+                ModelState.AddModelError("", $"Algo salió mal borrando el accesorio {accesorio.Descripcion}");
                 return StatusCode(500, ModelState);
             }
+
             return NoContent();
         }
     }

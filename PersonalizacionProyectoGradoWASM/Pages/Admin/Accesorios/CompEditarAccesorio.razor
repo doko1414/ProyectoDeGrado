@@ -183,11 +183,18 @@
                 return;
             }
 
+            // Comprobar el tamaño del archivo
+            if (modeloFile.Size > 15 * 1024 * 1024) // Límite de 5 MB
+            {
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "El archivo es demasiado grande. El tamaño máximo permitido es 15 MB.");
+                return;
+            }
+
             try
             {
                 using (var ms = new MemoryStream())
                 {
-                    await modeloFile.OpenReadStream().CopyToAsync(ms);
+                    await modeloFile.OpenReadStream(15 * 1024 * 1024).CopyToAsync(ms);
                     ms.Seek(0, SeekOrigin.Begin);
 
                     var content = new MultipartFormDataContent();

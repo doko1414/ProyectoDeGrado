@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +23,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(opciones =>
 // Añadir servicios al contenedor.
 
 builder.Services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-builder.Services.AddScoped<IAccesorioRepositorio, AccesorioRepositorio>();
-builder.Services.AddScoped<IPedidosRepositorio, PedidoRepositorio>();
+builder.Services.AddScoped<IAccesorioRepositorio, AccesorioRepositorio>(provider =>
+    new AccesorioRepositorio(
+        provider.GetRequiredService<ApplicationDbContext>(),
+        provider.GetRequiredService<IWebHostEnvironment>()
+    )
+); builder.Services.AddScoped<IPedidosRepositorio, PedidoRepositorio>();
 
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 15 * 1024 * 1024; // 15 MB
+});
 
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 15 * 1024 * 1024; // 15 MB
+});
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secreta");
 

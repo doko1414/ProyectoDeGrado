@@ -6,6 +6,8 @@ namespace ApiGrado.Controllers
 {
     [Route("api/upload")]
     [ApiController]
+    [RequestSizeLimit(15 * 1024 * 1024)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 15 * 1024 * 1024)]
     public class UploadController : ControllerBase
     {
         private readonly ILogger<UploadController> _logger;
