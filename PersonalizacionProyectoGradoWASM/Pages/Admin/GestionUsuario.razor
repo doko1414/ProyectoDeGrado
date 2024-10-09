@@ -9,112 +9,80 @@
 @inject NavigationManager NavigationManager
 @attribute [Authorize(Roles = "0")]
 
-<section id="usuarios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <h2 class="text-center mb-4">Usuarios</h2>
-                <div class="row mb-3">
-                    <div class="col">
-                        <button class="btn-nuevo">Nuevo</button>
-                    </div>
-                    <div class="col-auto">
-                        <input type="text" placeholder="Buscar" class="form-field">
-                    </div>
-                </div>
-
-                @if (estaCargando)
-                {
-                    <p>Cargando...</p>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <h3>Administradores</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre de Usuario</th>
-                                    <th>Nombre</th>
-                                    <th>Apellidos</th>
-                                    <th>Nro. Celular</th>
-                                    <th>Dirección</th>
-                                    <th>E-mail</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var admin in Administradores)
-                                {
-                                    <tr>
-                                        <td>@admin.Id</td>
-                                        <td>@admin.NombreUsuario</td>
-                                        <td>@admin.Nombre</td>
-                                        <td>@admin.Apellido</td>
-                                        <td>@admin.NumeroCelular</td>
-                                        <td>@admin.Direccion</td>
-                                        <td>@admin.Email</td>
-                                        <td>
-                                            <button class="btn btn-editar" @onclick="() => IniciarEdicion(admin.Id)">Editar</button>
-                                            <button class="btn btn-danger" @onclick="() => ManejadorOnBorrar(admin.Id)">
-                                                <i class="bi bi-trash-fill"></i>&nbsp; Borrar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="table-responsive mt-5">
-                        <h3>Clientes</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nombre de Usuario</th>
-                                    <th>Nombre</th>
-                                    <th>Apellidos</th>
-                                    <th>Nro. Celular</th>
-                                    <th>Dirección</th>
-                                    <th>E-mail</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var cliente in Clientes)
-                                {
-                                    <tr>
-                                        <td>@cliente.Id</td>
-                                        <td>@cliente.NombreUsuario</td>
-                                        <td>@cliente.Nombre</td>
-                                        <td>@cliente.Apellido</td>
-                                        <td>@cliente.NumeroCelular</td>
-                                        <td>@cliente.Direccion</td>
-                                        <td>@cliente.Email</td>
-                                        <td>
-                                            <button class="btn btn-danger" @onclick="() => ManejadorOnBorrar(cliente.Id)">
-                                                <i class="bi bi-trash-fill"></i>&nbsp; Borrar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
+<section class="usuarios-container">
+    <div class="filtros-container">
+        <input type="text" class="filtro-input" placeholder="Buscar por nombre de usuario" @bind="filtroNombre" @bind:event="oninput" @onkeyup="FiltrarUsuarios" />
+        <select class="filtro-select" @bind="filtroRol" @bind:after="FiltrarUsuarios">
+            <option value="">Todos los Usuarios</option>
+            <option value="@RolEnum.Administrador">Administradores</option>
+            <option value="@RolEnum.cliente">Clientes</option>
+        </select>
+        <button class="btn-nuevo" @onclick="NuevoUsuario">Nuevo Administrador</button>
     </div>
+
+    @if (estaCargando)
+    {
+        <div class="loading">Cargando...</div>
+    }
+    else if (error != null)
+    {
+        <div class="error-message">@error</div>
+    }
+    else
+    {
+        <div class="table-container2">
+            <table class="usuarios-table">
+                <thead>
+                    <tr>
+                        <th class="col-id">ID</th>
+                        <th class="col-usuario">USUARIO</th>
+                        <th class="col-nombre">NOMBRE</th>
+                        <th class="col-apellidos">APELLIDOS</th>
+                        <th class="col-celular">CELULAR</th>
+                        <th class="col-direccion">DIRECCIÓN</th>
+                        <th class="col-email">E-MAIL</th>
+                        <th class="col-acciones">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (usuariosFiltrados != null && usuariosFiltrados.Any())
+                    {
+                        @foreach (var usuario in usuariosFiltrados)
+                        {
+                            <tr>
+                                <td>@usuario.Id</td>
+                                <td>@usuario.NombreUsuario</td>
+                                <td>@usuario.Nombre</td>
+                                <td>@usuario.Apellido</td>
+                                <td>@usuario.NumeroCelular</td>
+                                <td>@usuario.Direccion</td>
+                                <td>@usuario.Email</td>
+                                <td class="acciones-container2">
+                                    <button class="btn-editar" @onclick="() => IniciarEdicion(usuario.Id)">Editar</button>
+                                    <button class="btn-eliminar" @onclick="() => ManejadorOnBorrar(usuario.Id)">Borrar</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center">No hay usuarios para mostrar.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </section>
 
 @code {
-    private IEnumerable<UsuarioGestion> Usuarios { get; set; } = new List<UsuarioGestion>();
-    private IEnumerable<UsuarioGestion> Administradores { get; set; } = new List<UsuarioGestion>();
-    private IEnumerable<UsuarioGestion> Clientes { get; set; } = new List<UsuarioGestion>();
-
+    private List<UsuarioGestion> usuarios = new List<UsuarioGestion>();
+    private List<UsuarioGestion> usuariosFiltrados = new List<UsuarioGestion>();
     private bool estaCargando = true;
+    private string error;
+    private string filtroNombre = "";
+    private RolEnum? filtroRol = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,20 +92,31 @@
     private async Task CargarUsuarios()
     {
         estaCargando = true;
+        error = null;
         try
         {
-            Usuarios = await usuarioServicio.GetUsuarios();
-            Administradores = Usuarios.Where(u => u.Rol == RolEnum.Administrador);
-            Clientes = Usuarios.Where(u => u.Rol == RolEnum.cliente);
+            usuarios = (await usuarioServicio.GetUsuarios()).ToList();
+            FiltrarUsuarios();
         }
         catch (Exception ex)
         {
-            await JsRuntime.InvokeVoidAsync("alert", $"Error al cargar usuarios: {ex.Message}");
+            error = $"Error al cargar usuarios: {ex.Message}";
         }
         finally
         {
             estaCargando = false;
         }
+    }
+
+    private void FiltrarUsuarios()
+    {
+        usuariosFiltrados = usuarios
+            .Where(u => string.IsNullOrEmpty(filtroNombre) ||
+                        u.NombreUsuario.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase) ||
+                        u.Nombre.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase) ||
+                        u.Apellido.Contains(filtroNombre, StringComparison.OrdinalIgnoreCase))
+            .Where(u => !filtroRol.HasValue || u.Rol == filtroRol.Value)
+            .ToList();
     }
 
     private async Task ManejadorOnBorrar(int userId)
@@ -168,5 +147,10 @@
     private void IniciarEdicion(int userId)
     {
         NavigationManager.NavigateTo($"/editar-usuario/{userId}");
+    }
+
+    private void NuevoUsuario()
+    {
+        NavigationManager.NavigateTo("/registroAdmin");
     }
 }
