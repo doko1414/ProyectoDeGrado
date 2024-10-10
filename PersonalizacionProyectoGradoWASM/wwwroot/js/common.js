@@ -153,6 +153,7 @@ function mostrarModelo3D(rutaModelo3D) {
         }
     });
 }
+
 console.log("Cargando funciones de modelo 3D...");
 let scene, engine, canvas;
 const accesoriosMesh = {};

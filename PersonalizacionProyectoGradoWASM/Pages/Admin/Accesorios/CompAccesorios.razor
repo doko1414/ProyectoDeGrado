@@ -1,5 +1,4 @@
 ﻿@page "/accesorios"
-
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Logging
 @using PersonalizacionProyectoGradoWASM.Helpers
@@ -8,79 +7,73 @@
 @using PersonalizacionProyectoGradoWASM.Modelos
 @inject IAccesoriosServicio accesoriosServicio
 @inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
 @attribute [Authorize(Roles = "0")]
 
-<section id="Accesorios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <h1 class="text-center">Accesorios</h1>
-                <NavLink href="crear-accesorio" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i>&nbsp; Nuevo Accesorio</NavLink>
-                <div class="card">
-                    
-                    <div class="card-body">
-                        <table class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Nombre</th>
-                                    <th>Costo</th>
-                                    <th>Precio</th>
-                                    <th>Modelo 3D</th>
-                                    <th>Descripción</th>
-                                    <th>Fecha de Creacion</th>
-                                    <th>Fecha de Actualización</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Accesorios.Count() > 0)
-                                {
-                                    @foreach (var post in Accesorios)
-                                    {
-                                        <tr>
-                                            <td>@post.Id</td>
-                                            <td>@post.Nombre</td>
-                                            <td>@post.Costo</td>
-                                            <td>@post.Precio</td>
-                                            <td>
-                                                <button class="btn btn-info" @onclick="() => MostrarModelo3D(post.RutaImagen)">Ver Modelo 3D</button>
-                                            </td>
-                                            <td>@post.Descripcion</td>
-                                            <td>@post.FechaCreacion</td>
-                                            <td>@post.FechaActualizacion</td>
-                                            <td>
-                                                <NavLink href="@($"editar-accesorio/{@post.Id}")" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Editar</NavLink>
-                                                <button class="btn btn-danger" @onclick="()=>ManejadorOnBorrar(post.Id)"><i class="bi bi-trash-fill"></i>&nbsp; Borrar</button>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="9">Cargando...</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <ConfirmacionBorrado ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="Click_Confirmacion_Borrado"></ConfirmacionBorrado>
-            </div>
-        </div>
+<section id="accesorios-page" class="accesorios-container">
+    <div class="accesorios-header">
+        <button @onclick="NuevoAccesorio" class="btn-nuevo">
+            <i class="bi bi-plus-circle-fill"></i>Nuevo Accesorio
+        </button>
     </div>
+
+    <div class="accesorios-table-container">
+        <table class="accesorios-table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Costo</th>
+                    <th>Precio</th>
+                    <th>Modelo 3D</th>
+                    <th>Descripción</th>
+                    <th>Creación</th>
+                    <th>Actualización</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Accesorios.Count() > 0)
+                {
+                    @foreach (var accesorio in Accesorios)
+                    {
+                        <tr>
+                            <td>@accesorio.Id</td>
+                            <td>@accesorio.Nombre</td>
+                            <td>@accesorio.Costo</td>
+                            <td>@accesorio.Precio</td>
+                            <td>
+                                <button class="btn-modelo3d" @onclick="() => MostrarModelo3D(accesorio.RutaImagen)">Ver Modelo 3D</button>
+                            </td>
+                            <td>@accesorio.Descripcion</td>
+                            <td>@accesorio.FechaCreacion.ToShortDateString()</td>
+                            <td>@accesorio.FechaActualizacion.ToShortDateString()</td>
+                            <td class="acciones-container3">
+                                <button class="btn-editar" @onclick="() => IniciarEdicion(accesorio.Id)"><i class="bi bi-gear-fill"></i>Editar</button>
+                                <button class="btn-borrar" @onclick="()=>ManejadorOnBorrar(accesorio.Id)"><i class="bi bi-trash-fill"></i>Borrar</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9">Cargando...</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <ConfirmacionBorrado ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="Click_Confirmacion_Borrado"></ConfirmacionBorrado>
 </section>
+
 <!-- Modal para mostrar el modelo 3D -->
 <div class="modal fade" id="modelo3DModal" tabindex="-1" role="dialog" aria-labelledby="modelo3DModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modelo3DModalLabel">Vista previa del Modelo 3D</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="modelo3DModalLabel">Vista previa </h5>
             </div>
             <div class="modal-body">
                 <canvas id="renderCanvas" style="width: 100%; height: 400px;"></canvas>
@@ -88,6 +81,7 @@
         </div>
     </div>
 </div>
+
 @code {
     public IEnumerable<Accesorio> Accesorios { get; set; } = new List<Accesorio>();
     //Par la parte de borrar
@@ -130,5 +124,13 @@
      private async Task MostrarModelo3D(string rutaModelo3D)
     {
         await JsRuntime.InvokeVoidAsync("mostrarModelo3D", rutaModelo3D);
+    }
+    private void NuevoAccesorio()
+    {
+        NavigationManager.NavigateTo("crear-accesorio");
+    }
+    private void IniciarEdicion(int accesorioId)
+    {
+        NavigationManager.NavigateTo($"editar-accesorio/{accesorioId}");
     }
 }
