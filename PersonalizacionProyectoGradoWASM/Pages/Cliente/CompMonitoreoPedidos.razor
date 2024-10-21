@@ -9,55 +9,50 @@
 @inject IJSRuntime JSRuntime
 @attribute [Authorize(Roles = "1")]
 
-<section id="Pedidos" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <h2>Mis Pedidos</h2>
-                @if (pedidos != null && pedidos.Any())
-                {
-                    @foreach (var pedido in pedidos.OrderByDescending(p => p.Id))
-                    {
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h4>Pedido #@pedido.Id</h4>
-                            </div>
-                            <div class="card-body">
-                                <h5>Accesorios seleccionados:</h5>
-                                @if (pedido.Items != null && pedido.Items.Any())
+<section id="Pedidos">
+    <div class="monitoreo-pedidos-container">
+        <h2 class="pedidos-title">Mis Pedidos</h2>
+        @if (pedidos != null && pedidos.Any())
+        {
+            @foreach (var pedido in pedidos.OrderByDescending(p => p.Id))
+            {
+                <div class="pedido-card">
+                    <div class="pedido-header">
+                        Pedido #@pedido.Id
+                    </div>
+                    <div class="pedido-body">
+                        <h5 class="pedido-section-title">Accesorios seleccionados:</h5>
+                        @if (pedido.Items != null && pedido.Items.Any())
+                        {
+                            <ul class="pedido-list">
+                                @foreach (var item in pedido.Items)
                                 {
-                                    <ul>
-                                        @foreach (var item in pedido.Items)
-                                        {
-                                            <li>@item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio: $@(item.Accesorio.Precio * item.Cantidad)</li>
-                                        }
-                                    </ul>
+                                    <li class="pedido-list-item">@item.Accesorio.Descripcion - Cantidad: @item.Cantidad - Precio: $@(item.Accesorio.Precio * item.Cantidad)</li>
                                 }
-                                else
-                                {
-                                    <p>No se encontraron detalles para este pedido.</p>
-                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>No se encontraron detalles para este pedido.</p>
+                        }
 
-                                <h5>Precio Total: $@pedido.PrecioTotal.ToString("F2")</h5>
-                                <h5>Estado del Pedido: @pedido.Estado.ToString()</h5>
+                        <p class="pedido-total">Precio Total: $@pedido.PrecioTotal.ToString("F2")</p>
+                        <p class="pedido-estado">Estado del Pedido: @pedido.Estado.ToString()</p>
 
-                                @if (pedido.Estado != EstadoPedido.Cancelado && pedido.Estado != EstadoPedido.Entregado)
-                                {
-                                    <button class="btn btn-danger" @onclick="() => CancelarPedido(pedido.Id)">Cancelar Pedido</button>
-                                }
-                            </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p>No se encontraron pedidos. Si crees que esto es un error, por favor, actualiza la página o contacta con soporte.</p>
-                }
-            </div>
-        </div>
+                        @if (pedido.Estado != EstadoPedido.Cancelado && pedido.Estado != EstadoPedido.Entregado)
+                        {
+                            <button class="btn-cancelar" @onclick="() => CancelarPedido(pedido.Id)">Cancelar Pedido</button>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-pedidos">No se encontraron pedidos. Si crees que esto es un error, por favor, actualiza la página o contacta con soporte.</p>
+        }
     </div>
 </section>
-
 @code {
     private List<PedidosComprasDto> pedidos;
     private int userId;

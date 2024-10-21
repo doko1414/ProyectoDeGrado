@@ -1999,6 +1999,115 @@ section {
     }
 }
 /*--------------------------------------------------------------
+# MonitoreoPedidos
+--------------------------------------------------------------*/
+/* Estilos específicos para la página de Monitoreo de Pedidos */
+#Pedidos {
+    background-color: #EDECE0;
+    font-family: 'Raleway', sans-serif;
+    padding-bottom: 40px;
+}
+
+.monitoreo-pedidos-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.pedidos-title {
+    color: #4B0082;
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pedido-card {
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(75, 0, 130, 0.1);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.pedido-header {
+    background-color: #E1AE47;
+    color: #4B0082;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.pedido-body {
+    padding: 20px;
+}
+
+.pedido-section-title {
+    color: #4B0082;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.pedido-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.pedido-list-item {
+    margin-bottom: 5px;
+    color: #4B0082;
+}
+
+.pedido-total, .pedido-estado {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 15px;
+    color: #4B0082;
+}
+
+.btn-cancelar {
+    background-color: #DC3545;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 15px;
+}
+
+    .btn-cancelar:hover {
+        background-color: #C82333;
+    }
+
+.no-pedidos {
+    text-align: center;
+    color: #4B0082;
+    font-size: 18px;
+    margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+    .pedidos-title {
+        font-size: 28px;
+    }
+
+    .pedido-header {
+        font-size: 18px;
+    }
+
+    .pedido-section-title, .pedido-total, .pedido-estado {
+        font-size: 16px;
+    }
+
+    .btn-cancelar {
+        font-size: 14px;
+    }
+}
+/*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
 .about .content h2 {

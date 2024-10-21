@@ -195,7 +195,7 @@ window.inicializarModeloBicicleta = function (rutaModeloBicicleta) {
 
                 // Ajustamos la posición de la cámara después de cargar el modelo
                 ajustarCamara();
-                scene.debugLayer.show();
+                //scene.debugLayer.show();
             }
             adjustLighting();
         },
@@ -215,15 +215,15 @@ window.inicializarModeloBicicleta = function (rutaModeloBicicleta) {
         engine.resize();
     });
 };
-window.addEventListener("keydown", function (ev) {
-    if (ev.keyCode === 73) { // 73 es el código de la tecla 'I'
-        if (scene.debugLayer.isVisible()) {
-            scene.debugLayer.hide();
-        } else {
-            scene.debugLayer.show();
-        }
-    }
-});
+//window.addEventListener("keydown", function (ev) {
+//    if (ev.keyCode === 73) { // 73 es el código de la tecla 'I'
+//        if (scene.debugLayer.isVisible()) {
+//            scene.debugLayer.hide();
+//        } else {
+//            scene.debugLayer.show();
+//        }
+//    }
+//});
 function ajustarCamara() {
     if (bicicletaMesh) {
         // Calculamos el bounding box del modelo
