@@ -9,117 +9,63 @@
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "0")]
 
-<section id="crearAccesorios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <h1 class="text-center">Crear Accesorio</h1>
+<section id="crearAccesorios" class="crear-accesorio-container">
+    <div class="card-accesorio">
+        <div class="card-header-accesorio">
+            <h4>Nuevo Accesorio</h4>
+        </div>
+        <div class="card-body-accesorio">
+            <EditForm Model="CrearAccesorio" OnValidSubmit="@( () => ManejadorOnCrearPost())">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <ValidationSummary></ValidationSummary>
 
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-7">
-                                <h4 class="card-title text-dark">Nuevo Accesorio</h4>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <EditForm Model="CrearAccesorio" OnValidSubmit="@( () => ManejadorOnCrearPost())">
-                            <DataAnnotationsValidator></DataAnnotationsValidator>
-                            <ValidationSummary></ValidationSummary>
-                            <div class="container">
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <label>Nombre:</label>
-                                        </div>
-                                        <div class="-col-6">
-                                            <InputSelect @bind-Value="CrearAccesorio.Nombre" class="form-control">
-                                                <option value="">Seleccione un nombre</option>
-                                                @foreach (var nombre in listaDeNombres)
-                                                {
-                                                    <option value="@nombre">@nombre</option>
-                                                }
-                                            </InputSelect>
-                                            <ValidationMessage For="() => CrearAccesorio.Nombre"></ValidationMessage>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <label>Costo:</label>
-                                        </div>
-                                        <div class="-col-6">
-                                            <InputNumber @bind-Value="CrearAccesorio.Costo" class="form-control" placeholder="Ingresa la descripción"></InputNumber>
-                                            <ValidationMessage For="() => CrearAccesorio.Costo"></ValidationMessage>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <label>Precio:</label>
-                                        </div>
-                                        <div class="-col-6">
-                                            <InputNumber @bind-Value="CrearAccesorio.Precio" class="form-control" placeholder="Ingresa aquí las etiquetas separadas por coma"></InputNumber>
-                                            <ValidationMessage For="() => CrearAccesorio.Precio"></ValidationMessage>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <h4>Modelo 3D del Accesorio</h4>
-                                            <InputFile OnChange="@ManejadorOnSubidaArchivo" accept=".glb"></InputFile>
-                                            <br />
-                                            @if (!string.IsNullOrEmpty(Modelo3d))
-                                            {
-                                                <div>
-                                                    <p>Modelo 3D cargado: @Modelo3d</p>
-                                                    <button type="button" class="btn btn-info" @onclick="MostrarVistaPrevia3D">Vista previa 3D</button>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <label>Descripción</label>
-                                        </div>
-                                        <div class="-col-6">
-                                            <InputText @bind-Value="CrearAccesorio.Descripcion" class="form-control" placeholder="Ingresa aquí las etiquetas separadas por coma"></InputText>
-                                            <ValidationMessage For="() => CrearAccesorio.Descripcion"></ValidationMessage>
-                                        </div>
-                                    </div>
-                                </div>
-                                <br />
-                                <div class="form-group">
-                                    <div class="row">
-                                        <div class="col-2">
-                                            <button type="submit" class="btn btn-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar Post</button>
-                                        </div>
-                                        <div class="col-6">
-                                            <NavLink href="accesorios" class="btn btn-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Volver atrás</NavLink>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </EditForm>
-
-                    </div>
+                <div class="form-group-accesorio">
+                    <label for="nombre">Nombre:</label>
+                    <InputSelect @bind-Value="CrearAccesorio.Nombre" class="form-control-accesorio" id="nombre">
+                        <option value="">Seleccione un nombre</option>
+                        @foreach (var nombre in listaDeNombres)
+                        {
+                            <option value="@nombre">@nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => CrearAccesorio.Nombre"></ValidationMessage>
                 </div>
-            </div>
+
+                <div class="form-group-accesorio">
+                    <label for="costo">Costo:</label>
+                    <InputNumber @bind-Value="CrearAccesorio.Costo" class="form-control-accesorio" id="costo"></InputNumber>
+                    <ValidationMessage For="() => CrearAccesorio.Costo"></ValidationMessage>
+                </div>
+
+                <div class="form-group-accesorio">
+                    <label for="precio">Precio:</label>
+                    <InputNumber @bind-Value="CrearAccesorio.Precio" class="form-control-accesorio" id="precio"></InputNumber>
+                    <ValidationMessage For="() => CrearAccesorio.Precio"></ValidationMessage>
+                </div>
+
+                <div class="form-group-accesorio">
+                    <label>Modelo 3D del Accesorio</label>
+                    <InputFile OnChange="@ManejadorOnSubidaArchivo" accept=".glb" class="form-control-accesorio"></InputFile>
+                    @if (!string.IsNullOrEmpty(Modelo3d))
+                    {
+                        <div class="modelo3d-preview">
+                            <p>Modelo 3D cargado: @Modelo3d</p>
+                            <button type="button" @onclick="MostrarVistaPrevia3D" class="btn btn-secondary">Vista previa 3D</button>
+                        </div>
+                    }
+                </div>
+
+                <div class="form-group-accesorio">
+                    <label for="descripcion">Descripción</label>
+                    <InputText @bind-Value="CrearAccesorio.Descripcion" class="form-control-accesorio" id="descripcion"></InputText>
+                    <ValidationMessage For="() => CrearAccesorio.Descripcion"></ValidationMessage>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-success-accesorio"><i class="bi bi-gear-fill"></i> Guardar Accesorio</button>
+                    <NavLink href="accesorios" class="btn btn-secondary-accesorio"><i class="bi bi-arrow-left-circle-fill"></i> Volver atrás</NavLink>
+                </div>
+            </EditForm>
         </div>
     </div>
 </section>

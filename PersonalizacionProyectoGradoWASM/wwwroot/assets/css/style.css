@@ -1237,6 +1237,159 @@ canvas {
     }
 }
 /*--------------------------------------------------------------
+# Crear Accesorio
+--------------------------------------------------------------*/
+.crear-accesorio-container {
+    max-width: 400px;
+    width: 90%;
+    margin: 90px auto;
+    padding: 0px 20px 20px 20px;
+    background-color: #EDECE0;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    max-height: calc(100vh - 120px); /* Ajusta según la altura de tu barra de navegación */
+}
+
+.card-header-accesorio {
+    background-color: #E1AE47;
+    color: #EDECE0;
+    font-weight: bold;
+    padding: 10px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin: -20px -20px 20px -20px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+    .card-header-accesorio h4 {
+        margin: 0;
+        text-align: center;
+        font-size: 1.2rem;
+    }
+
+.form-group-accesorio {
+    margin-bottom: 15px;
+}
+
+    .form-group-accesorio label {
+        color: #4b0082;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+.form-control-accesorio {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #4b0082;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #EDECE0;
+}
+
+    .form-control-accesorio:focus {
+        border-color: #E1AE47;
+        box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+        outline: none;
+    }
+
+/* Estilo específico para el select */
+select.form-control-accesorio {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234b0082' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+    color: #4B0082;
+}
+
+/* Estilo para InputFile */
+input[type="file"].form-control-accesorio {
+    padding: 4px;
+}
+
+.btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-bottom: 10px;
+    border: none;
+}
+
+.btn-success-accesorio {
+    background-color: #E1AE47;
+    color: #EDECE0;
+}
+
+    .btn-success-accesorio:hover {
+        background-color: #4b0082;
+        color: #EDECE0;
+    }
+
+.btn-secondary-accesorio {
+    background-color: #E1AE47;
+    color: #EDECE0;
+}
+
+    .btn-secondary-accesorio:hover {
+        background-color: #4b0082;
+        color: #EDECE0;
+    }
+
+.modelo3d-preview {
+    margin-top: 10px;
+}
+
+    .modelo3d-preview p {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .modelo3d-preview button {
+        background-color: #4b0082;
+        color: #EDECE0;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .modelo3d-preview button:hover {
+            background-color: #3a006f;
+        }
+
+/* Estilos para los mensajes de validación */
+.validation-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .crear-accesorio-container {
+        width: 95%;
+        padding: 15px;
+        margin: 10px auto;
+    }
+
+    .card-header-accesorio {
+        margin: -15px -15px 15px -15px;
+    }
+
+    .btn {
+        padding: 8px 12px;
+    }
+}
+/*--------------------------------------------------------------
 # Sections General
 --------------------------------------------------------------*/
 section {
@@ -1540,6 +1693,309 @@ section {
 
     .order-2 {
         order: 1 !important;
+    }
+}
+/*--------------------------------------------------------------
+# Pagina mi perfil
+--------------------------------------------------------------*/
+/* Specific styles for the MiPerfil component */
+
+#profileSection {
+    background-color: #EDECE0;
+    min-height: calc(100vh - 60px); /* Adjust based on your header height */
+    padding: 80px 20px 40px;
+    font-family: 'Raleway', sans-serif;
+}
+
+.profile-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(75, 0, 130, 0.1);
+    padding: 30px;
+}
+
+.profile-title {
+    color: #4B0082;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profile-edit-btn {
+    background-color: #E1AE47;
+    color: #4B0082;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    display: block;
+    margin: 0 0 20px auto;
+}
+
+    .profile-edit-btn:hover {
+        background-color: #4B0082;
+        color: #EDECE0;
+    }
+
+.profile-form-group {
+    margin-bottom: 20px;
+}
+
+.profile-label {
+    display: block;
+    color: #4B0082;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.profile-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #E1AE47;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #4B0082;
+    background-color: #EDECE0;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .profile-input:focus {
+        border-color: #4B0082;
+        box-shadow: 0 0 0 2px rgba(75, 0, 130, 0.2);
+        outline: none;
+    }
+
+    .profile-input:disabled {
+        background-color: #F5F5F5;
+        cursor: not-allowed;
+    }
+
+.profile-submit-btn {
+    background-color: #E1AE47;
+    color: #4B0082;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    width: 100%;
+    margin-top: 30px;
+}
+
+    .profile-submit-btn:hover {
+        background-color: #4B0082;
+        color: #EDECE0;
+    }
+
+.profile-validation-message {
+    color: #DC3545;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Icon styles */
+.profile-label i {
+    margin-right: 8px;
+    color: #E1AE47;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 20px;
+    }
+
+    .profile-title {
+        font-size: 24px;
+    }
+
+    .profile-edit-btn,
+    .profile-submit-btn {
+        font-size: 16px;
+    }
+
+    .profile-input {
+        font-size: 14px;
+    }
+}
+
+/* Additional styles to match the header design */
+.profile-header {
+    background-color: #E1AE47;
+    color: #4B0082;
+    padding: 15px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    margin: -30px -30px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .profile-header h3 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+/* Style for the loading text */
+.profile-loading {
+    text-align: center;
+    color: #4B0082;
+    font-size: 18px;
+    margin-top: 20px;
+}
+
+/* Improve form layout */
+.profile-form {
+    display: grid;
+    gap: 20px;
+}
+
+/* Style for icons */
+.fa-user-circle,
+.fa-edit,
+.fa-save {
+    margin-right: 8px;
+}
+
+/* Hover effect for inputs */
+.profile-input:hover:not(:disabled) {
+    border-color: #4B0082;
+}
+
+/* Transition for smoother UX */
+.profile-input,
+.profile-edit-btn,
+.profile-submit-btn {
+    transition: all 0.3s ease;
+}
+.change-password-link {
+    color: #4B0082;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+    .change-password-link:hover {
+        color: #E1AE47;
+    }
+/*--------------------------------------------------------------
+# Página Editar Usuario
+--------------------------------------------------------------*/
+#editarUsuarioSection {
+    background-color: #EDECE0;
+    min-height: calc(100vh - 60px); /* Ajustar según la altura de tu encabezado */
+    padding: 80px 20px 40px;
+    font-family: 'Raleway', sans-serif;
+}
+
+.editar-usuario-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(75, 0, 130, 0.1);
+    padding: 30px;
+}
+
+.editar-usuario-title {
+    color: #4B0082;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        color: #4B0082;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #E1AE47;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #4B0082;
+    background-color: #EDECE0;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #4B0082;
+        box-shadow: 0 0 0 2px rgba(75, 0, 130, 0.2);
+        outline: none;
+    }
+
+.btn {
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #E1AE47;
+    color: #4B0082;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #4B0082;
+        color: #EDECE0;
+    }
+
+.btn-secondary {
+    background-color: #4B0082;
+    color: #EDECE0;
+    border: none;
+    margin-left: 10px;
+}
+
+    .btn-secondary:hover {
+        background-color: #E1AE47;
+        color: #4B0082;
+    }
+
+.validation-message {
+    color: #DC3545;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .editar-usuario-container {
+        padding: 20px;
+    }
+
+    .editar-usuario-title {
+        font-size: 24px;
+    }
+
+    .btn {
+        font-size: 16px;
+    }
+
+    .form-control {
+        font-size: 14px;
     }
 }
 /*--------------------------------------------------------------

@@ -14,10 +14,9 @@ namespace PersonalizacionProyectoGradoWASM.Modelos
         public int NumeroCelular { get; set; }
         [Required(ErrorMessage = "La Dirección es obligatoria")]
         public string Direccion { get; set; }
-
-        [Required(ErrorMessage = "La Contraseña es obligatoria")]
         public string Password { get; set; }
         public string Email { get; set; }
         public RolEnum Rol { get; set; }
+
     }
 }

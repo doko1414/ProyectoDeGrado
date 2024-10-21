@@ -1,85 +1,115 @@
 ﻿@page "/editar-usuario/{Id:int}"
+@using PersonalizacionProyectoGradoWASM.Helpers
 @using PersonalizacionProyectoGradoWASM.Modelos
 @using PersonalizacionProyectoGradoWASM.Servicios.IServicios
 @inject IUsuariosServicio usuarioServicio
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
-<section id="Accesorios" class="d-flex justify-content-center" style="min-height: 100vh; padding-top: 80px;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <h3>Editar Usuario</h3>
 
-                @if (usuario == null)
-                {
-                    <p>Cargando...</p>
-                }
-                else
-                {
-                    <EditForm Model="@usuario" OnValidSubmit="GuardarCambios">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
+<section id="editarUsuarioSection">
+    <div class="editar-usuario-container">
+        <h2 class="editar-usuario-title">Editar Usuario</h2>
+        @if (usuario == null)
+        {
+            <p class="text-center">Cargando...</p>
+        }
+        else
+        {
+            <EditForm Model="@usuario" OnValidSubmit="GuardarCambios">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-                        <div class="form-group">
-                            <label for="nombre">Nombre:</label>
-                            <InputText id="nombre" @bind-Value="usuario.Nombre" class="form-control" />
-                        </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <InputText id="nombre" @bind-Value="usuario.Nombre" class="form-control" />
+                    <ValidationMessage For="@(() => usuario.Nombre)" class="validation-message" />
+                </div>
 
-                        <div class="form-group">
-                            <label for="apellido">Apellido:</label>
-                            <InputText id="apellido" @bind-Value="usuario.Apellido" class="form-control" />
-                        </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido:</label>
+                    <InputText id="apellido" @bind-Value="usuario.Apellido" class="form-control" />
+                    <ValidationMessage For="@(() => usuario.Apellido)" class="validation-message" />
+                </div>
 
-                        <div class="form-group">
-                            <label for="numeroCelular">Número de Celular:</label>
-                            <InputNumber id="numeroCelular" @bind-Value="usuario.NumeroCelular" class="form-control" />
-                        </div>
+                <div class="form-group">
+                    <label for="numeroCelular">Número de Celular:</label>
+                    <InputNumber id="numeroCelular" @bind-Value="usuario.NumeroCelular" class="form-control" />
+                    <ValidationMessage For="@(() => usuario.NumeroCelular)" class="validation-message" />
+                </div>
 
-                        <div class="form-group">
-                            <label for="direccion">Dirección:</label>
-                            <InputText id="direccion" @bind-Value="usuario.Direccion" class="form-control" />
-                        </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección:</label>
+                    <InputText id="direccion" @bind-Value="usuario.Direccion" class="form-control" />
+                    <ValidationMessage For="@(() => usuario.Direccion)" class="validation-message" />
+                </div>
 
-                        <div class="form-group">
-                            <label for="email">Email:</label>
-                            <InputText id="email" @bind-Value="usuario.Email" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Contraseña:</label>
-                            <InputText id="email" @bind-Value="usuario.Password" class="form-control" />
-                        </div>
-                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                        <button type="button" class="btn btn-secondary" @onclick="Cancelar">Cancelar</button>
-                    </EditForm>
-                }
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <InputText id="email" @bind-Value="usuario.Email" class="form-control" />
+                    <ValidationMessage For="@(() => usuario.Email)" class="validation-message" />
+                </div>
 
-            </div>
-        </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    @if (cambiarContrasena)
+                    {
+                        <InputText id="password" @bind-Value="nuevaContrasena" type="password" class="form-control" />
+                        <ValidationMessage For="@(() => nuevaContrasena)" class="validation-message" />
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0);" @onclick="HabilitarCambioContrasena" class="change-password-link">Cambiar contraseña</a>
+                    }
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="profile-submit-btn">Guardar Cambios</button>
+                    <button type="button" class="profile-submit-btn" @onclick="Cancelar">Cancelar</button>
+                </div>
+            </EditForm>
+        }
     </div>
 </section>
 
 @code {
     [Parameter]
     public int Id { get; set; }
-
     private UsuarioGestion usuario;
+    private bool cambiarContrasena = false;
+    private string nuevaContrasena = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         usuario = await usuarioServicio.GetUsuario(Id);
     }
 
+    private void HabilitarCambioContrasena()
+    {
+        cambiarContrasena = true;
+    }
+
     private async Task GuardarCambios()
     {
         try
         {
+            if (cambiarContrasena && !string.IsNullOrWhiteSpace(nuevaContrasena))
+            {
+                usuario.Password = nuevaContrasena;
+            }
+            else
+            {
+                // Si no se cambió la contraseña, establecemos Password a null
+                // para que el backend sepa que no debe actualizarla
+                usuario.Password = null;
+            }
+
             await usuarioServicio.ActualizarUsuario(Id, usuario);
-            await JsRuntime.InvokeVoidAsync("alert", "Usuario actualizado correctamente");
+            await JsRuntime.ToastrSuccess("Usuario actualizado correctamente");
             NavigationManager.NavigateTo("/usuarios");
         }
         catch (Exception ex)
         {
-            await JsRuntime.InvokeVoidAsync("alert", $"Error al actualizar usuario: {ex.Message}");
+            await JsRuntime.ToastrSuccess($"Error al actualizar usuario: {ex.Message}");
         }
     }
 

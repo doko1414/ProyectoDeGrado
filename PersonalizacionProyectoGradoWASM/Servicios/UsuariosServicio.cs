@@ -27,9 +27,8 @@ namespace PersonalizacionProyectoGradoWASM.Servicios
 
             if (response.IsSuccessStatusCode)
             {
-                var contentTemp = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<UsuarioGestion>(contentTemp);
-                return result;
+                // Si la actualización fue exitosa, obtén el usuario actualizado
+                return await GetUsuario(usuarioId);
             }
             else
             {
@@ -58,7 +57,6 @@ namespace PersonalizacionProyectoGradoWASM.Servicios
         public async Task<UsuarioGestion> GetUsuario(int usuarioId)
         {
             var response = await _cliente.GetAsync($"{Inicializar.UrlBaseApi}api/usuarios/{usuarioId}");
-
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();

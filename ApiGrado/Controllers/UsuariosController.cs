@@ -114,7 +114,7 @@ namespace ApiGrado.Controllers
         public async Task<IActionResult> ActualizarUsuario(int usuarioId, [FromBody] UsuarioActualizarDto usuarioActualizarDto)
         {
             var respuesta = new RespuestasAPI();
-            if (usuarioActualizarDto == null || usuarioId == 0)
+            if (usuarioActualizarDto == null || usuarioId != usuarioActualizarDto.Id)
             {
                 respuesta.StatusCode = HttpStatusCode.BadRequest;
                 respuesta.IsSuccess = false;
@@ -129,11 +129,19 @@ namespace ApiGrado.Controllers
                 respuesta.ErrorMessages.Add("Usuario no encontrado");
                 return NotFound(respuesta);
             }
-            usuario = _mapper.Map<UsuarioActualizarDto, Usuario>(usuarioActualizarDto, usuario);
+
+            usuario.Nombre = usuarioActualizarDto.Nombre;
+            usuario.Apellido = usuarioActualizarDto.Apellido;
+            usuario.NumeroCelular = usuarioActualizarDto.NumeroCelular;
+            usuario.Direccion = usuarioActualizarDto.Direccion;
+            usuario.Email = usuarioActualizarDto.Email;
+
+            // Actualiza la contraseña solo si se proporciona una nueva
             if (!string.IsNullOrEmpty(usuarioActualizarDto.Password))
             {
                 usuario.Password = UsuarioRepositorio.obtenermd5(usuarioActualizarDto.Password);
             }
+
             if (!_usRepo.ActualizarUsuario(usuario))
             {
                 respuesta.StatusCode = HttpStatusCode.InternalServerError;
